@@ -32,10 +32,10 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 90),
-                
+
                 // Logo
                 Image.asset(
-                   'lib/assets/images/Logo.png',
+                  'lib/assets/images/Logo.png',
                   width: 232,
                   height: 48.73,
                   fit: BoxFit.contain,
@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 84),
 
-                //Uusername TextBox
+                //Username TextBox
                 Text_Box(
                   hintText: 'Username',
                   controller: _usernameController,
@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // Forgotten password 
+                // Forgotten password
                 const Text(
                   'Forgotten password?',
                   style: TextStyle(
@@ -89,7 +89,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     fontWeight: FontWeight.normal,
                   ),
                 ),
-           
               ],
             ),
           ),
@@ -100,12 +99,10 @@ class _LoginScreenState extends State<LoginScreen> {
         child: CustomButton(
           text: 'Create account',
           onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const UsernameScreen(),
-                      ),
-                    );
-                  },
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const UsernameScreen()),
+            );
+          },
           isOutlined: true,
           backgroundColor: const Color(0xFFFFCC00),
           textColor: const Color(0xFFFFCC00),
