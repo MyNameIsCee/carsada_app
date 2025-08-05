@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "412517034079",
+    "project_id": "carsada-app",
+    "storage_bucket": "carsada-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:412517034079:android:dffa07944c1800ea8253ea",
+        "android_client_info": {
+          "package_name": "com.carsada.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6IHbKnPhF3MnG6wJCE2SiDFR7M9RNajg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:412517034079:android:d2129c5ce73c74388253ea",
+        "android_client_info": {
+          "package_name": "com.example.carsada_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6IHbKnPhF3MnG6wJCE2SiDFR7M9RNajg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
