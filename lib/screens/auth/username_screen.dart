@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carsada_app/components/text_box.dart';
 import 'package:carsada_app/components/button.dart';
@@ -5,9 +6,8 @@ import 'package:carsada_app/components/back_icon.dart';
 import 'package:carsada_app/screens/auth/login_screen.dart';
 import 'package:carsada_app/screens/auth/email_screen.dart';
 
-
 class UsernameScreen extends StatefulWidget {
-  const UsernameScreen({Key? key}) : super(key: key);
+  UsernameScreen({super.key});
 
   @override
   State<UsernameScreen> createState() => _UsernameScreenState();
@@ -33,10 +33,8 @@ class _UsernameScreenState extends State<UsernameScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(
-                  height: 10),
+                const SizedBox(height: 10),
 
-                //back icon arrow 
                 Row(
                   children: [
                     Back_Icon(
@@ -56,9 +54,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
                       child: Center(
                         child: Text(
                           'Get Started',
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
+                          style: TextStyle(fontSize: 16),
                         ),
                       ),
                     ),
@@ -66,47 +62,38 @@ class _UsernameScreenState extends State<UsernameScreen> {
                   ],
                 ),
 
-                //hello
                 const SizedBox(height: 30),
                 Padding(
                   padding: const EdgeInsets.only(left: 0),
                   child: Text(
                     'Hello!',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold
-                      ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ),
-                
 
-                //texts
                 Padding(
                   padding: const EdgeInsets.only(left: 0),
                   child: Text(
                     'Enter the username you want.',
-                    style: TextStyle(
-                      fontSize: 14),
+                    style: TextStyle(fontSize: 14),
                   ),
                 ),
 
-                //username text box
-                 const SizedBox(height: 15),
+                const SizedBox(height: 15),
                 Text_Box(
                   hintText: 'Username',
                   controller: _usernameController,
-                  keyboardType: TextInputType.emailAddress,
+                  keyboardType: TextInputType.text,
                 ),
 
-                
-                // Next Button
                 const SizedBox(height: 20),
                 CustomButton(
                   text: 'Next',
                   onPressed: () {
                     Navigator.of(context).pushReplacement(
                       PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) => const EmailScreen(),
+                        pageBuilder: (context, animation, secondaryAnimation) => 
+                            EmailScreen(username: _usernameController.text.trim()),
                         transitionDuration: Duration.zero,
                         reverseTransitionDuration: Duration.zero,
                       ),
@@ -117,7 +104,6 @@ class _UsernameScreenState extends State<UsernameScreen> {
                   width: 390,
                   height: 50,
                 ),
-
               ],
             ),
           ),
