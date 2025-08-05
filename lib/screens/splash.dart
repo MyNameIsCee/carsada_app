@@ -12,7 +12,7 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
-    //_navigateToLogin();
+    _navigateToLogin();
   }
 
   _navigateToLogin() async {
