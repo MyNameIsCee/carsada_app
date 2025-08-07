@@ -7,7 +7,7 @@ import 'package:carsada_app/screens/auth/login_screen.dart';
 import 'package:carsada_app/screens/auth/email_screen.dart';
 
 class UsernameScreen extends StatefulWidget {
-  UsernameScreen({super.key});
+  const UsernameScreen({super.key});
 
   @override
   State<UsernameScreen> createState() => _UsernameScreenState();
@@ -25,7 +25,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       backgroundColor: Colors.white,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -39,12 +39,14 @@ class _UsernameScreenState extends State<UsernameScreen> {
                   children: [
                     Back_Icon(
                       onPressed: () {
-                       Navigator.of(context).pushReplacement(
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
-                      ),
+                        Navigator.of(context).pushReplacement(
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const LoginScreen(),
+                            transitionDuration: Duration.zero,
+                            reverseTransitionDuration: Duration.zero,
+                          ),
                         );
                       },
                       color: Colors.black,
@@ -58,7 +60,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 48), 
+                    SizedBox(width: 48),
                   ],
                 ),
 
@@ -92,8 +94,10 @@ class _UsernameScreenState extends State<UsernameScreen> {
                   onPressed: () {
                     Navigator.of(context).pushReplacement(
                       PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) => 
-                            EmailScreen(username: _usernameController.text.trim()),
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            EmailScreen(
+                              username: _usernameController.text.trim(),
+                            ),
                         transitionDuration: Duration.zero,
                         reverseTransitionDuration: Duration.zero,
                       ),
