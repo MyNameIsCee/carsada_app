@@ -16,7 +16,7 @@ class _SplashState extends State<Splash> {
   }
 
   _navigateToLogin() async {
-    await Future.delayed(const Duration(seconds: 3), () {});
+    await Future.delayed(const Duration(seconds: 6), () {});
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -30,14 +30,15 @@ class _SplashState extends State<Splash> {
       body: Container(
         alignment: Alignment.center,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 100),
-            //logo
-            Image.asset(
-              'lib/assets/images/Logo.png',
-              width: 232,
-              height: 48.73,
-              fit: BoxFit.contain,
+            Expanded(
+              child: Center(
+                child: Image.asset(
+                  'lib/assets/loading/loading.gif',
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
           ],
         ),

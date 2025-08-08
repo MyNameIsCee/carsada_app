@@ -85,18 +85,21 @@ class _TextBoxState extends State<Text_Box> {
     );
   }
 
-  Widget? _buildEyeIcon() {
-    return IconButton(
-      icon: Icon(
-        _obscureText ? Icons.visibility_off : Icons.visibility,
-        color: const Color.fromARGB(255, 137, 132, 132),
-        size: 26,
+    Widget? _buildEyeIcon() {
+    return Container(
+      margin: const EdgeInsets.only(right: 10.0), 
+      child: IconButton(
+        icon: Icon(
+          _obscureText ? Icons.visibility_off : Icons.visibility,
+          color: const Color.fromARGB(255, 137, 132, 132),
+          size: 26,
+        ),
+        onPressed: () {
+          setState(() {
+            _obscureText = !_obscureText;
+          });
+        },
       ),
-      onPressed: () {
-        setState(() {
-          _obscureText = !_obscureText;
-        });
-      },
     );
   }
 
