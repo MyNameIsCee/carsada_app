@@ -87,19 +87,96 @@ class _NavigationScreen extends StatelessWidget {
       LatLng(10.8300, 122.6500),
     );
 
-    return FlutterMap(
-      options: MapOptions(
-        initialCenter: const LatLng(10.7202, 122.5621), 
-        initialZoom: 13.0,
-        maxZoom: 18.0,
-        minZoom: 11.0,
-        cameraConstraint: CameraConstraint.contain(bounds: iloiloborders),
-      ),
+    return Stack(
       children: [
-        TileLayer(
-          urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          subdomains: ['a', 'b', 'c'],
-          userAgentPackageName: 'com.example.carsada_app',
+        // Map fills the background
+        Positioned.fill(
+          child: FlutterMap(
+            options: MapOptions(
+              initialCenter: const LatLng(10.7202, 122.5621),
+              initialZoom: 13.0,
+              maxZoom: 18.0,
+              minZoom: 11.0,
+              cameraConstraint: CameraConstraint.contain(bounds: iloiloborders),
+            ),
+            children: [
+              TileLayer(
+                urlTemplate:
+                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                subdomains: ['a', 'b', 'c'],
+                userAgentPackageName: 'com.example.carsada_app',
+              ),
+            ],
+          ),
+        ),
+        // Header and search box
+        Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+              color: const Color.fromRGBO(255, 204, 0, 1),
+              height: 160,
+              width: double.infinity,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          'Navigation',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          "Wherever you're going, let's get you there!",
+                          style: TextStyle(fontSize: 14, color: Colors.black87),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Image.asset(
+                    'lib/assets/images/jeep.png',
+                    width: 435,
+                    height: 216,
+                    fit: BoxFit.contain,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 30), // space for search box overlap
+          ],
+        ),
+        // Floating search box
+        Positioned(
+          left: 20,
+          right: 20,
+          top: 160 - 30, // header height - overlap
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 8,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            alignment: Alignment.centerLeft,
+            child: const Text(
+              'Enter your route',
+              style: TextStyle(color: Colors.black54, fontSize: 16),
+            ),
+          ),
         ),
       ],
     );
