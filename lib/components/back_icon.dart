@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
+
 
 class Back_Icon extends StatelessWidget {
   final VoidCallback? onPressed;
@@ -6,20 +8,21 @@ class Back_Icon extends StatelessWidget {
   final double? size;
 
   const Back_Icon({
-    Key? key,
+    super.key,
     this.onPressed,
     this.color,
     this.size,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onPressed ?? () => Navigator.of(context).pop(),
-      icon: Icon(
-        Icons.arrow_back_ios,
-        color: const Color.fromARGB(255, 40, 39, 39),
-        size: size ?? 26,
+      constraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+      icon: HugeIcon(
+        icon: HugeIcons.strokeRoundedArrowLeft01,
+        size: size ?? 35,
+        color: color ?? const Color(0xFF353232),
       ),
     );
   }

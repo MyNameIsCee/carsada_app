@@ -24,7 +24,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F7F9),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -33,35 +33,39 @@ class _UsernameScreenState extends State<UsernameScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 10),
-
                 Row(
                   children: [
-                    Back_Icon(
-                      onPressed: () {
-                        Navigator.of(context).pushReplacement(
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const LoginScreen(),
-                            transitionDuration: Duration.zero,
-                            reverseTransitionDuration: Duration.zero,
-                          ),
-                        );
-                      },
-                      color: Colors.black,
-                      size: 26,
+                     SizedBox(
+                        width: 48,
+                        child: Transform.translate(
+                        offset: const Offset(-15, 0),
+                        child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Back_Icon(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacement(
+                             PageRouteBuilder(
+                               pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
+                               transitionDuration: Duration.zero,
+                               reverseTransitionDuration: Duration.zero,
+                           ),
+                         );
+                       },
+                     ),
                     ),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          'Get Started',
-                          style: TextStyle(fontSize: 16),
-                        ),
+                   ),
+                   ),
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        'Get Started',
+                        style: TextStyle(fontSize: 16),
                       ),
                     ),
-                    SizedBox(width: 48),
-                  ],
-                ),
+                  ),
+                  SizedBox(width: 48),
+                ],
+              ),
 
                 const SizedBox(height: 30),
                 Padding(
@@ -102,10 +106,6 @@ class _UsernameScreenState extends State<UsernameScreen> {
                       ),
                     );
                   },
-                  backgroundColor: const Color(0xFFFFCC00),
-                  textColor: Color.fromARGB(255, 247, 243, 243),
-                  width: 390,
-                  height: 50,
                 ),
               ],
             ),

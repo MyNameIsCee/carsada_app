@@ -1,9 +1,9 @@
+import 'package:carsada_app/screens/auth/username_screen.dart';
 import 'package:carsada_app/screens/commuter/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carsada_app/components/text_box.dart';
 import 'package:carsada_app/components/button.dart';
-import 'package:carsada_app/screens/auth/username_screen.dart';
 import 'package:carsada_app/screens/auth/authentication.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -89,10 +89,12 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+//UI
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F7F9),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -100,8 +102,6 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 90),
-
-                // Logo
                 Image.asset(
                   'lib/assets/images/Logo.png',
                   width: 232,
@@ -110,7 +110,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 22),
 
-                //message to our users
                 const Text(
                   'Your everyday navigation app',
                   style: TextStyle(
@@ -121,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 84),
 
-                //Uusername TextBox
+              
                 Text_Box(
                   hintText: 'Email address',
                   controller: _emailController,
@@ -129,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 15),
 
-                // Password TextBox
+             
                 Text_Box(
                   hintText: 'Password',
                   controller: _passwordController,
@@ -137,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 10),
 
-                // Error message
+                
                 if (_errorMessage.isNotEmpty)
                   Container(
                     width: double.infinity,
@@ -156,7 +155,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 10),
 
-                // Login Button
                 CustomButton(
                   text: _isLoading ? 'Logging in...' : 'Login',
                   onPressed: _isLoading ? null : _login,
@@ -167,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // Forgotten password
+            
                 const Text(
                   'Forgotten password?',
                   style: TextStyle(
@@ -186,15 +184,11 @@ class _LoginScreenState extends State<LoginScreen> {
         child: CustomButton(
           text: 'Create account',
           onPressed: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => UsernameScreen()),
-            );
+                      Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const UsernameScreen()),
+          );
           },
           isOutlined: true,
-          backgroundColor: const Color(0xFFFFCC00),
-          textColor: const Color(0xFFFFCC00),
-          width: 390,
-          height: 50,
         ),
       ),
     );

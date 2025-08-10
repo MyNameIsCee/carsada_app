@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class Text_Box extends StatefulWidget {
   final String? hintText;
@@ -89,9 +90,9 @@ class _TextBoxState extends State<Text_Box> {
     return Container(
       margin: const EdgeInsets.only(right: 10.0), 
       child: IconButton(
-        icon: Icon(
-          _obscureText ? Icons.visibility_off : Icons.visibility,
-          color: const Color.fromARGB(255, 137, 132, 132),
+        icon: HugeIcon(
+          icon: _obscureText ? HugeIcons.strokeRoundedViewOff : HugeIcons.strokeRoundedView,
+          color: Color(0xFF353232),
           size: 26,
         ),
         onPressed: () {

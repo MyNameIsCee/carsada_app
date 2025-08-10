@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:carsada_app/screens/commuter/user_tab_screen.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -18,19 +18,34 @@ class _HomeScreenState extends State<HomeScreen> {
     final controller = Get.put(NavigationController());
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F7F9),
       bottomNavigationBar: Obx(
-        () => NavigationBar(   
+        () => NavigationBar(
+          backgroundColor: Colors.white,
+          indicatorColor: Colors.transparent,
           height: 82,
           elevation: 0,
           selectedIndex: controller.selectedIndex.value,
-          onDestinationSelected: (index) => controller.selectedIndex.value = index,
-          destinations: [
-            NavigationDestination(icon: Icon(Iconsax.map), label: 'Navigation'),
-            NavigationDestination(icon: Icon(Iconsax.user), label: 'Profile'),
-          ],  
+          onDestinationSelected: (index) =>
+              controller.selectedIndex.value = index,
+          destinations: const [
+            NavigationDestination(
+              icon: HugeIcon(icon: HugeIcons.strokeRoundedNavigation03, size: 24, color: Color(0xFF353232)),
+              selectedIcon: HugeIcon(icon: HugeIcons.strokeRoundedNavigation03, size: 24, color: Color(0xFFFFCC00)),
+              label: 'Navigation',
+            ),
+            NavigationDestination(
+              icon: HugeIcon(icon: HugeIcons.strokeRoundedUser, size: 24, color: Color(0xFF353232)),
+              selectedIcon: HugeIcon(icon: HugeIcons.strokeRoundedUser, size: 24, color: Color(0xFFFFCC00)),
+              label: 'Profile',
+            ),
+          ],
         ),
       ),
-      body: Obx(() => controller.screens[controller.selectedIndex.value]),
+      body: Obx(() => IndexedStack(
+            index: controller.selectedIndex.value,
+            children: controller.screens,
+          )),
     );
   }
 }
@@ -45,7 +60,7 @@ class NavigationController extends GetxController {
 }
 
 class _NavigationScreen extends StatelessWidget {
-  const _NavigationScreen({Key? key}) : super(key: key);
+  const _NavigationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -72,4 +87,3 @@ class _NavigationScreen extends StatelessWidget {
     );
   }
 }
-
