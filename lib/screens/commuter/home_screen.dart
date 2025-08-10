@@ -80,7 +80,6 @@ class _NavigationScreen extends StatelessWidget {
       children: [
         TileLayer(
           urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          subdomains: ['a', 'b', 'c'],
           userAgentPackageName: 'com.example.carsada_app',
         ),
       ],
