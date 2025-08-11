@@ -78,7 +78,7 @@ class NavigationController extends GetxController {
 }
 
 class _NavigationScreen extends StatelessWidget {
-  const _NavigationScreen({super.key});
+  const _NavigationScreen();
 
   @override
   Widget build(BuildContext context) {
@@ -117,40 +117,42 @@ class _NavigationScreen extends StatelessWidget {
               color: const Color.fromRGBO(255, 204, 0, 1),
               height: 160,
               width: double.infinity,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'Navigation',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          "Wherever you're going, let's get you there!",
-                          style: TextStyle(fontSize: 14, color: Colors.black87),
-                        ),
-                      ],
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Text(
+                      'Navigation',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                  Image.asset(
-                    'lib/assets/images/jeep.png',
-                    width: 435,
-                    height: 216,
-                    fit: BoxFit.contain,
-                  ),
-                ],
+                    SizedBox(height: 4),
+                    Text(
+                      "Wherever you're going, let's get you there!",
+                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 30), // space for search box overlap
+            const SizedBox(height: 30),
           ],
+        ),
+        // Fixed-position image that can overflow header
+        Positioned(
+          right: -60,
+          top: 4, // adjust as needed
+          child: Image.asset(
+            'lib/assets/images/jeep.png',
+            width: 220,
+            height: 220,
+            fit: BoxFit.contain,
+          ),
         ),
         // Floating search box
         Positioned(
@@ -175,6 +177,56 @@ class _NavigationScreen extends StatelessWidget {
             child: const Text(
               'Enter your route',
               style: TextStyle(color: Colors.black54, fontSize: 16),
+            ),
+          ),
+        ),
+        // routes list at the bottom
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  offset: Offset(0, -3),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Drag indicator (optional)
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+
+                // Title
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Routes',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

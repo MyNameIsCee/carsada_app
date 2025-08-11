@@ -23,7 +23,7 @@ class MenuTile extends StatelessWidget {
   final bool showDivider;
   final VoidCallback? onTap;
 
-  const MenuTile({Key? key, required this.menu, this.showDivider = false, this.onTap}) : super(key: key);
+  const MenuTile({super.key, required this.menu, this.showDivider = false, this.onTap});
 
   @override
   Widget build(BuildContext context) {
