@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:carsada_app/screens/commuter/user_tab_screen.dart';
+import 'package:carsada_app/utils/routes.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -18,7 +19,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final controller = Get.put(NavigationController());
 
     return Scaffold(
-      //backgroundColor: Colors.transparent,
       bottomNavigationBar: Obx(
         () => NavigationBar(
           backgroundColor: Colors.white,
@@ -41,6 +41,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Color(0xFFFFCC00),
               ),
               label: 'Navigation',
+            ),
+            NavigationDestination(
+              icon: HugeIcon(
+                icon: HugeIcons.strokeRoundedRoute03,
+                size: 24,
+                color: Color(0xFF353232),
+              ),
+              selectedIcon: HugeIcon(
+                icon: HugeIcons.strokeRoundedRoute03,
+                size: 24,
+                color: Color(0xFFFFCC00),
+              ),
+              label: 'Routes',
             ),
             NavigationDestination(
               icon: HugeIcon(
@@ -73,12 +86,51 @@ class NavigationController extends GetxController {
 
   final List<Widget> screens = [
     const _NavigationScreen(),
+    const RoutesScreen(), 
     const UserTabScreen(),
   ];
 }
 
-class _NavigationScreen extends StatelessWidget {
+class RoutesScreen extends StatelessWidget {
+  const RoutesScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        'Routes Screen',
+        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+}
+
+class _NavigationScreen extends StatefulWidget {
   const _NavigationScreen();
+
+  @override
+  State<_NavigationScreen> createState() => _NavigationScreenState();
+}
+
+class _NavigationScreenState extends State<_NavigationScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  bool _showSuggestions = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {
+        _showSuggestions = _searchController.text.isNotEmpty;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +198,7 @@ class _NavigationScreen extends StatelessWidget {
         // Fixed-position image that can overflow header
         Positioned(
           right: -60,
-          top: 4, // adjust as needed
+          top: 3, // adjust as needed
           child: Image.asset(
             'lib/assets/images/jeep.png',
             width: 220,
@@ -159,78 +211,94 @@ class _NavigationScreen extends StatelessWidget {
           left: 20,
           right: 20,
           top: 160 - 30, // header height - overlap
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            height: 60,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 8,
-                  offset: Offset(0, 3),
-                ),
-              ],
-            ),
-            alignment: Alignment.centerLeft,
-            child: const Text(
-              'Enter your route',
-              style: TextStyle(color: Colors.black54, fontSize: 16),
-            ),
-          ),
-        ),
-        // routes list at the bottom
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30),
-                topRight: Radius.circular(30),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10,
-                  offset: Offset(0, -3),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Drag indicator (optional)
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-
-                // Title
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Routes',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 8,
+                      offset: Offset(0, 3),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+                alignment: Alignment.centerLeft,
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Enter your route',
+                    border: InputBorder.none,
+                    hintStyle: TextStyle(color: Colors.black54, fontSize: 16),
+                    icon: Icon(Icons.search, color: Colors.black54),
+                  ),
+                  style: const TextStyle(fontSize: 16),
+                  onSubmitted: (value) {
+                    // TODO: Handle search logic here
+                    print('User entered: $value');
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+              if (_showSuggestions)
+                RoutesField(
+                  // Convert the JeepneyRoutes into route names
+                  suggestions: jeepneyRoutes
+                      .map((route) => route.routeName)
+                      .toList(),
+                  query: _searchController.text,
+                ),
+            ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class RoutesField extends StatelessWidget {
+  final List<String> suggestions;
+  final String query;
+
+  const RoutesField({Key? key, required this.suggestions, required this.query})
+    : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = suggestions
+        .where((s) => s.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    if (filtered.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+        ],
+      ),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: filtered.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(filtered[index]),
+            onTap: () {
+              // Handle route selection
+              print('Selected: ${filtered[index]}');
+              FocusScope.of(context).unfocus();
+            },
+          );
+        },
+      ),
     );
   }
 }
