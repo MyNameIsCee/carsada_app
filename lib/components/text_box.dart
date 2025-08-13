@@ -8,8 +8,6 @@ class Text_Box extends StatefulWidget {
   final TextInputType? keyboardType;
   final Function(String)? onChanged;
   final bool isPassword;
-  final String? Function(String? value)? validator;
-  final AutovalidateMode? autovalidateMode;
 
 
   const Text_Box({
@@ -20,8 +18,6 @@ class Text_Box extends StatefulWidget {
     this.keyboardType,
     this.onChanged,
     this.isPassword = false,
-    this.validator,
-    this.autovalidateMode,
  
   });
 
@@ -40,67 +36,38 @@ class _TextBoxState extends State<Text_Box> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildTextField();
+    return _buildContainer(child: _buildTextField(),
+    );
   }
 
-  Widget _buildContainer({required Widget child, required bool hasError}) {
+  Widget _buildContainer({required Widget child}) {
     return Container(
       width: 390,
-      decoration: _buildDecoration(hasError: hasError),
+      height: 65,
+      decoration: _buildDecoration(),
       child: child,
     );
   }
 
-  BoxDecoration _buildDecoration({required bool hasError}) {
+  BoxDecoration _buildDecoration() {
     return BoxDecoration(
       color: const Color(0xFFFEFEFE),
       borderRadius: BorderRadius.circular(15),
       border: Border.all(
-        color: hasError ? Colors.red : const Color(0xFF353232),
+        color: const Color(0xFF353232),
         width: 1,
       ),
     );
   }
 
   Widget _buildTextField() {
-    return FormField<String>(
-      initialValue: widget.controller?.text,
-      autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.onUserInteraction,
-      validator: widget.validator,
-      builder: (state) {
-        final bool hasError = state.hasError;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildContainer(
-              hasError: hasError,
-              child: TextField(
-                controller: widget.controller,
-                obscureText: _obscureText,
-                keyboardType: widget.isPassword
-                    ? TextInputType.visiblePassword
-                    : widget.keyboardType,
-                onChanged: (value) {
-                  state.didChange(value);
-                  if (widget.onChanged != null) {
-                    widget.onChanged!(value);
-                  }
-                },
-                style: _getTextStyle(),
-                decoration: _buildInputDecoration(),
-              ),
-            ),
-            if (hasError)
-              Padding(
-                padding: const EdgeInsets.only(top: 6, left: 4),
-                child: Text(
-                  state.errorText ?? '',
-                  style: const TextStyle(color: Colors.red, fontSize: 12),
-                ),
-              ),
-          ],
-        );
-      },
+    return TextField(
+      controller: widget.controller,
+      obscureText: _obscureText,
+      keyboardType: widget.isPassword ? TextInputType.visiblePassword : widget.keyboardType,
+      onChanged: widget.onChanged,
+      style: _getTextStyle(),
+      decoration: _buildInputDecoration()
     );
   }
 

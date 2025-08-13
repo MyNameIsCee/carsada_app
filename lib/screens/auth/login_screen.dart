@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:carsada_app/components/text_box.dart';
 import 'package:carsada_app/components/button.dart';
 import 'package:carsada_app/screens/auth/authentication.dart';
-import 'package:carsada_app/validator/validator.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -157,8 +156,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 10),
 
                 CustomButton(
-                  text:  'Login',
-                  onPressed:  _login,
+                  text: _isLoading ? 'Logging in...' : 'Login',
+                  onPressed: _isLoading ? null : _login,
                   backgroundColor: const Color(0xFFFFCC00),
                   textColor: Color.fromARGB(255, 247, 243, 243),
                   width: 390,

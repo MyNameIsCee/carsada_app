@@ -94,7 +94,7 @@ class NavigationController extends GetxController {
 }
 
 class _NavigationScreen extends StatelessWidget {
-  const _NavigationScreen();
+  const _NavigationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
