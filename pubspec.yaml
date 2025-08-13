@@ -80,6 +80,7 @@ flutter:
     - lib/assets/images/
     - lib/assets/loading/
     - lib/assets/icons/
+    - lib/assets/images/jeep.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

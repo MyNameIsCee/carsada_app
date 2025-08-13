@@ -30,22 +30,54 @@ class _HomeScreenState extends State<HomeScreen> {
               controller.selectedIndex.value = index,
           destinations: const [
             NavigationDestination(
-              icon: HugeIcon(icon: HugeIcons.strokeRoundedNavigation03, size: 24, color: Color(0xFF353232)),
               selectedIcon: HugeIcon(icon: HugeIcons.strokeRoundedNavigation03, size: 24, color: Color(0xFFFFCC00)),
+              icon: HugeIcon(
+                icon: HugeIcons.strokeRoundedNavigation03,
+                size: 24,
+                color: Color(0xFF353232),
+              ),
+              selectedIcon: HugeIcon(
+                icon: HugeIcons.strokeRoundedNavigation03,
+                size: 24,
+                color: Color(0xFFFFCC00),
+              ),
               label: 'Navigation',
             ),
             NavigationDestination(
-              icon: HugeIcon(icon: HugeIcons.strokeRoundedUser, size: 24, color: Color(0xFF353232)),
-              selectedIcon: HugeIcon(icon: HugeIcons.strokeRoundedUser, size: 24, color: Color(0xFFFFCC00)),
+              icon: HugeIcon(
+                icon: HugeIcons.strokeRoundedRoute03,
+                size: 24,
+                color: Color(0xFF353232),
+              ),
+              selectedIcon: HugeIcon(
+                icon: HugeIcons.strokeRoundedRoute03,
+                size: 24,
+                color: Color(0xFFFFCC00),
+              ),
+              label: 'Routes',
+            ),
+            NavigationDestination(
+              icon: HugeIcon(
+                icon: HugeIcons.strokeRoundedUser,
+                size: 24,
+                color: Color(0xFF353232),
+              ),
+              selectedIcon: HugeIcon(
+                icon: HugeIcons.strokeRoundedUser,
+                size: 24,
+                color: Color(0xFFFFCC00),
+              ),
               label: 'Profile',
             ),
           ],
         ),
       ),
-      body: Obx(() => IndexedStack(
-            index: controller.selectedIndex.value,
-            children: controller.screens,
-          )),
+      body: Obx(
+        () => IndexedStack(
+          index: controller.selectedIndex.value,
+          children: controller.screens,
+        ),
+      ),
     );
   }
 }
@@ -55,6 +87,7 @@ class NavigationController extends GetxController {
 
   final List<Widget> screens = [
     const _NavigationScreen(),
+    const RoutesScreen(), 
     const UserTabScreen(),
   ];
 }
@@ -69,21 +102,166 @@ class _NavigationScreen extends StatelessWidget {
       LatLng(10.8300, 122.6500),
     );
 
-    return FlutterMap(
-      options: MapOptions(
-        initialCenter: const LatLng(10.7202, 122.5621), 
-        initialZoom: 13.0,
-        maxZoom: 18.0,
-        minZoom: 11.0,
-        cameraConstraint: CameraConstraint.contain(bounds: iloiloborders),
-      ),
+    return Stack(
       children: [
-        TileLayer(
-          urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          subdomains: ['a', 'b', 'c'],
-          userAgentPackageName: 'com.example.carsada_app',
+        // Map fills the background
+        Positioned.fill(
+          child: FlutterMap(
+            options: MapOptions(
+              initialCenter: const LatLng(10.7202, 122.5621),
+              initialZoom: 13.0,
+              maxZoom: 18.0,
+              minZoom: 11.0,
+              cameraConstraint: CameraConstraint.contain(bounds: iloiloborders),
+            ),
+            children: [
+              TileLayer(
+                urlTemplate:
+                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                subdomains: ['a', 'b', 'c'],
+                userAgentPackageName: 'com.example.carsada_app',
+              ),
+            ],
+          ),
+        ),
+        // Header and search box
+        Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+              color: const Color.fromRGBO(255, 204, 0, 1),
+              height: 160,
+              width: double.infinity,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Text(
+                      'Navigation',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      "Wherever you're going, let's get you there!",
+                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+          ],
+        ),
+        // Fixed-position image that can overflow header
+        Positioned(
+          right: -60,
+          top: 3, // adjust as needed
+          child: Image.asset(
+            'lib/assets/images/jeep.png',
+            width: 220,
+            height: 220,
+            fit: BoxFit.contain,
+          ),
+        ),
+        // Floating search box
+        Positioned(
+          left: 20,
+          right: 20,
+          top: 160 - 30, // header height - overlap
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 8,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                alignment: Alignment.centerLeft,
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Enter your route',
+                    border: InputBorder.none,
+                    hintStyle: TextStyle(color: Colors.black54, fontSize: 16),
+                    icon: Icon(Icons.search, color: Colors.black54),
+                  ),
+                  style: const TextStyle(fontSize: 16),
+                  onSubmitted: (value) {
+                    // TODO: Handle search logic here
+                    print('User entered: $value');
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+              if (_showSuggestions)
+                RoutesField(
+                  // Convert the JeepneyRoutes into route names
+                  suggestions: jeepneyRoutes
+                      .map((route) => route.routeName)
+                      .toList(),
+                  query: _searchController.text,
+                ),
+            ],
+          ),
         ),
       ],
+    );
+  }
+}
+
+class RoutesField extends StatelessWidget {
+  final List<String> suggestions;
+  final String query;
+
+  const RoutesField({Key? key, required this.suggestions, required this.query})
+    : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = suggestions
+        .where((s) => s.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    if (filtered.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+        ],
+      ),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: filtered.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(filtered[index]),
+            onTap: () {
+              // Handle route selection
+              print('Selected: ${filtered[index]}');
+              FocusScope.of(context).unfocus();
+            },
+          );
+        },
+      ),
     );
   }
 }
