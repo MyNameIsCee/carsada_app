@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:carsada_app/screens/commuter/user_tab_screen.dart';
-import 'package:carsada_app/utils/routes.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -114,14 +113,14 @@ class _NavigationScreen extends StatefulWidget {
 
 class _NavigationScreenState extends State<_NavigationScreen> {
   final TextEditingController _searchController = TextEditingController();
-  bool _showSuggestions = false;
+
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(() {
       setState(() {
-        _showSuggestions = _searchController.text.isNotEmpty;
+
       });
     });
   }
@@ -185,7 +184,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      "Wherever you're going, let's get you there!",
+                      "Para po! San punta natin?",
                       style: TextStyle(fontSize: 14, color: Colors.black87),
                     ),
                   ],
@@ -231,27 +230,14 @@ class _NavigationScreenState extends State<_NavigationScreen> {
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'Enter your route',
+                    hintText: 'Enter your destination',
                     border: InputBorder.none,
                     hintStyle: TextStyle(color: Colors.black54, fontSize: 16),
                     icon: Icon(Icons.search, color: Colors.black54),
                   ),
                   style: const TextStyle(fontSize: 16),
-                  onSubmitted: (value) {
-                    // TODO: Handle search logic here
-                    print('User entered: $value');
-                  },
                 ),
               ),
-              const SizedBox(height: 10),
-              if (_showSuggestions)
-                RoutesField(
-                  // Convert the JeepneyRoutes into route names
-                  suggestions: jeepneyRoutes
-                      .map((route) => route.routeName)
-                      .toList(),
-                  query: _searchController.text,
-                ),
             ],
           ),
         ),
@@ -260,45 +246,3 @@ class _NavigationScreenState extends State<_NavigationScreen> {
   }
 }
 
-class RoutesField extends StatelessWidget {
-  final List<String> suggestions;
-  final String query;
-
-  const RoutesField({Key? key, required this.suggestions, required this.query})
-    : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final filtered = suggestions
-        .where((s) => s.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-
-    if (filtered.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
-        ],
-      ),
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: filtered.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(filtered[index]),
-            onTap: () {
-              // Handle route selection
-              print('Selected: ${filtered[index]}');
-              FocusScope.of(context).unfocus();
-            },
-          );
-        },
-      ),
-    );
-  }
-}
