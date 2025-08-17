@@ -6,6 +6,10 @@ import 'package:carsada_app/screens/auth/login_screen.dart';
 import 'package:carsada_app/components/menu_tile.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:carsada_app/screens/commuter/profile_menus/about.dart';
+import 'package:carsada_app/screens/commuter/profile_menus/faqs.dart';
+import 'package:carsada_app/screens/commuter/profile_menus/send_feedback.dart';
+import 'package:carsada_app/screens/commuter/profile_menus/edit_profile.dart';  
 
 class UserTabScreen extends StatefulWidget {
   const UserTabScreen({super.key});
@@ -189,10 +193,46 @@ class _UserTabScreenState extends State<UserTabScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        MenuTile(menu: menus[0], showDivider: true),
-                        MenuTile(menu: menus[1], showDivider: true),
-                        MenuTile(menu: menus[2], showDivider: true),
-                        MenuTile(menu: menus[3]),
+                        MenuTile(menu: menus[0], showDivider: true,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditProfile(),
+                              ),
+                            );
+                          },
+                        ),
+                        MenuTile(menu: menus[1], showDivider: true, 
+                        onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => About(),
+                              ),
+                            );
+                          },
+                          ),
+                        MenuTile(menu: menus[2], showDivider: true, 
+                        onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Faqs(),
+                              ),
+                            );
+                          },
+                          ),
+                        MenuTile(menu: menus[3], 
+                        onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => sendFeedback(),
+                              ),
+                            );
+                          },
+                          ),
                       ],
                     ),
                   ),
