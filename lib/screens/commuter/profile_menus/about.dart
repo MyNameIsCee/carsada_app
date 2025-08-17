@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:carsada_app/components/back_icon.dart';
-import 'package:carsada_app/components/text_box.dart';
-import 'package:carsada_app/components/button.dart';
 
 class About extends StatefulWidget {
   const About({super.key});
