@@ -156,8 +156,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 10),
 
                 CustomButton(
-                  text: _isLoading ? 'Logging in...' : 'Login',
-                  onPressed: _isLoading ? null : _login,
+                  text:  _isLoading ? 'Logging in...'  : 'Login',
+                  onPressed:  _login,
                   backgroundColor: const Color(0xFFFFCC00),
                   textColor: Color.fromARGB(255, 247, 243, 243),
                   width: 390,

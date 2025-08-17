@@ -8,6 +8,10 @@ import 'package:carsada_app/screens/auth/login_screen.dart';
 import 'package:carsada_app/components/menu_tile.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:carsada_app/screens/commuter/services/cloudinary_service.dart';
+import 'package:carsada_app/screens/commuter/profile_menus/about.dart';
+import 'package:carsada_app/screens/commuter/profile_menus/faqs.dart';
+import 'package:carsada_app/screens/commuter/profile_menus/send_feedback.dart';
+import 'package:carsada_app/screens/commuter/profile_menus/edit_profile.dart';
 
 class UserTabScreen extends StatefulWidget {
   const UserTabScreen({super.key});
@@ -207,6 +211,85 @@ class _UserTabScreenState extends State<UserTabScreen> {
                     const SizedBox(height: 5),
                     Text(email, style: const TextStyle(fontSize: 14)),
                   ],
+                ),
+                const SizedBox(height: 50),
+
+                Center(
+                  child: Container(
+                    width: 390,
+                    height: 260,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        MenuTile(
+                          menu: menus[0],
+                          showDivider: true,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditProfile(),
+                              ),
+                            );
+                          },
+                        ),
+                        MenuTile(
+                          menu: menus[1],
+                          showDivider: true,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => About()),
+                            );
+                          },
+                        ),
+                        MenuTile(
+                          menu: menus[2],
+                          showDivider: true,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Faqs()),
+                            );
+                          },
+                        ),
+                        MenuTile(
+                          menu: menus[3],
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => sendFeedback(),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+                Center(
+                  child: Container(
+                    width: 390,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        MenuTile(menu: menus[4], showDivider: true),
+                        MenuTile(menu: menus[5], onTap: _logout),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),

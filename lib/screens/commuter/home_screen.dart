@@ -1,3 +1,4 @@
+import 'package:carsada_app/screens/commuter/route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -18,51 +19,76 @@ class _HomeScreenState extends State<HomeScreen> {
     final controller = Get.put(NavigationController());
 
     return Scaffold(
-      //backgroundColor: Colors.transparent,
-      bottomNavigationBar: Obx(
-        () => NavigationBar(
-          backgroundColor: Colors.white,
-          indicatorColor: Colors.transparent,
-          height: 82,
-          elevation: 0,
-          selectedIndex: controller.selectedIndex.value,
-          onDestinationSelected: (index) =>
-              controller.selectedIndex.value = index,
-          destinations: const [
-            NavigationDestination(
-              icon: HugeIcon(
-                icon: HugeIcons.strokeRoundedNavigation03,
-                size: 24,
-                color: Color(0xFF353232),
-              ),
-              selectedIcon: HugeIcon(
-                icon: HugeIcons.strokeRoundedNavigation03,
-                size: 24,
-                color: Color(0xFFFFCC00),
-              ),
-              label: 'Navigation',
-            ),
-            NavigationDestination(
-              icon: HugeIcon(
-                icon: HugeIcons.strokeRoundedUser,
-                size: 24,
-                color: Color(0xFF353232),
-              ),
-              selectedIcon: HugeIcon(
-                icon: HugeIcons.strokeRoundedUser,
-                size: 24,
-                color: Color(0xFFFFCC00),
-              ),
-              label: 'Profile',
-            ),
-          ],
+      backgroundColor: const Color(0xFFF7F7F9),
+      bottomNavigationBar: Obx(() => bottomNavi(controller)),
+      body: Obx(
+        () {
+          if (controller.selectedIndex.value == 0) {
+            return const _NavigationScreen();
+          } else {
+            return controller.screens[controller.selectedIndex.value];
+          }
+        },
+      ),
+    );
+  }
+
+  Widget bottomNavi(NavigationController controller) {
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Color.fromARGB(255, 189, 188, 188), width: 0.5),
         ),
       ),
-      body: Obx(
-        () => IndexedStack(
-          index: controller.selectedIndex.value,
-          children: controller.screens,
-        ),
+      child: NavigationBar(
+        backgroundColor: Colors.white,
+        indicatorColor: Colors.transparent,
+        height: 60,
+        elevation: 0,
+        selectedIndex: controller.selectedIndex.value,
+        onDestinationSelected: (index) =>
+            controller.selectedIndex.value = index,
+        destinations: const [
+          NavigationDestination(
+            icon: HugeIcon(
+              icon: HugeIcons.strokeRoundedNavigation03,
+              size: 24,
+              color: Color(0xFF353232),
+            ),
+            selectedIcon: HugeIcon(
+              icon: HugeIcons.strokeRoundedNavigation03,
+              size: 24,
+              color: Color(0xFFFFCC00),
+            ),
+            label: 'Navigation',
+          ),
+          NavigationDestination(
+            icon: HugeIcon(
+              icon: HugeIcons.strokeRoundedRoute02,
+              size: 24,
+              color: Color(0xFF353232),
+            ),
+            selectedIcon: HugeIcon(
+              icon: HugeIcons.strokeRoundedRoute02,
+              size: 24,
+              color: Color(0xFFFFCC00),
+            ),
+            label: 'Routes',
+          ),
+          NavigationDestination(
+            icon: HugeIcon(
+              icon: HugeIcons.strokeRoundedUser,
+              size: 24,
+              color: Color(0xFF353232),
+            ),
+            selectedIcon: HugeIcon(
+              icon: HugeIcons.strokeRoundedUser,
+              size: 24,
+              color: Color(0xFFFFCC00),
+            ),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }
@@ -73,12 +99,34 @@ class NavigationController extends GetxController {
 
   final List<Widget> screens = [
     const _NavigationScreen(),
+    const RouteScreen(),
     const UserTabScreen(),
   ];
 }
 
-class _NavigationScreen extends StatelessWidget {
+class _NavigationScreen extends StatefulWidget {
   const _NavigationScreen();
+
+  @override
+  State<_NavigationScreen> createState() => _NavigationScreenState();
+}
+
+class _NavigationScreenState extends State<_NavigationScreen> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +181,7 @@ class _NavigationScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      "Wherever you're going, let's get you there!",
+                      "Para po! San punta natin?",
                       style: TextStyle(fontSize: 14, color: Colors.black87),
                     ),
                   ],
@@ -146,7 +194,7 @@ class _NavigationScreen extends StatelessWidget {
         // Fixed-position image that can overflow header
         Positioned(
           right: -60,
-          top: 4, // adjust as needed
+          top: 3, // adjust as needed
           child: Image.asset(
             'lib/assets/images/jeep.png',
             width: 220,
@@ -159,78 +207,40 @@ class _NavigationScreen extends StatelessWidget {
           left: 20,
           right: 20,
           top: 160 - 30, // header height - overlap
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            height: 60,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 8,
-                  offset: Offset(0, 3),
-                ),
-              ],
-            ),
-            alignment: Alignment.centerLeft,
-            child: const Text(
-              'Enter your route',
-              style: TextStyle(color: Colors.black54, fontSize: 16),
-            ),
-          ),
-        ),
-        // routes list at the bottom
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30),
-                topRight: Radius.circular(30),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10,
-                  offset: Offset(0, -3),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Drag indicator (optional)
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-
-                // Title
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Routes',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 8,
+                      offset: Offset(0, 3),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+                alignment: Alignment.centerLeft,
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Enter your destination',
+                    border: InputBorder.none,
+                    hintStyle: TextStyle(color: Colors.black54, fontSize: 16),
+                    icon: Icon(Icons.search, color: Colors.black54),
+                  ),
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 }
+
+
