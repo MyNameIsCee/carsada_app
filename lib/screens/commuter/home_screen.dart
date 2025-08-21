@@ -6,13 +6,12 @@ import 'package:carsada_app/screens/commuter/user_tab_screen.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-// New imports for route finding functionality
+
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-// Assuming these files exist in the same directory or you have the correct path
 import 'package:carsada_app/utils/jeepneyRoutes.dart';
 import 'package:carsada_app/utils/jeepneyRoutesLatLong.dart';
 
@@ -109,7 +108,7 @@ class NavigationController extends GetxController {
 
   final List<Widget> screens = [
     const _NavigationScreen(),
-    const RouteScreen(), // This will now work
+    const RouteScreen(), 
     const UserTabScreen(),
   ];
 }
@@ -216,7 +215,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       _isLoading = true;
       _statusMessage = 'Searching for "$query"...';
       _validRoutes = [];
-      _selectedRoute = null; // Clear selected route when searching for a new one
+      _selectedRoute = null; 
       _markers.removeWhere((m) => m.key != const ValueKey('user_marker'));
       _walkingPath = null;
     });
@@ -225,7 +224,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       final response = await http.get(
         Uri.parse(
             'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&format=json&limit=1'),
-        headers: {'User-Agent': 'JeepneyApp/1.0'},
+        headers: {'User-Agent': 'Carsada'},
       );
 
       if (response.statusCode == 200) {
@@ -240,7 +239,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
             _markers.add(_createDestinationMarker());
           });
           await _calculateValidRoutesAndNavigate(
-              query); // Call the new navigation method
+              query); 
         } else {
           setState(() => _statusMessage = 'Destination not found');
         }
@@ -266,7 +265,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
     }).toList();
 
     if (validRoutes.isNotEmpty) {
-      // Navigate to the new screen and wait for a result
+    
       final selectedRoute = await Navigator.push(
         context,
         MaterialPageRoute(
@@ -282,7 +281,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
 
       if (selectedRoute != null) {
         setState(() => _selectedRoute = selectedRoute);
-        _selectRoute(selectedRoute); // Call the existing method to update the map
+        _selectRoute(selectedRoute); 
       }
     } else {
       setState(() => _statusMessage =
@@ -332,7 +331,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
     });
   }
   
-  // --- Calculation Helper Methods ---
 
   double _calculateDistance(LatLng point1, LatLng point2) {
     return Geolocator.distanceBetween(
@@ -357,8 +355,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
     return nearestPoint;
   }
 
-  // --- Marker Creation Helper Methods ---
-
   Marker _createUserMarker() {
     return Marker(
       key: const ValueKey('user_marker'),
@@ -367,7 +363,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       height: 80,
       child: const Icon(
         Icons.person_pin_circle,
-        color: Colors.blue,
+        color: Colors.orangeAccent,
         size: 30,
       ),
     );
@@ -406,7 +402,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Map fills the background
+
         Positioned.fill(
           child: FlutterMap(
             mapController: _mapController,
@@ -445,7 +441,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
           ),
         ),
 
-        // Header and search box
         Column(
           children: [
             Container(
@@ -480,7 +475,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
           ],
         ),
 
-        // Fixed-position image that can overflow header
+
         Positioned(
           right: -60,
           top: 3,
@@ -492,11 +487,11 @@ class _NavigationScreenState extends State<_NavigationScreen> {
           ),
         ),
 
-        // Floating search box with status
+ 
         Positioned(
           left: 20,
           right: 20,
-          top: 160 - 30, // header height - overlap
+          top: 160 - 30, 
           child: Column(
             children: [
               Container(
@@ -536,7 +531,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
           ),
         ),
 
-        // Floating action button for re-selecting route
         if (_selectedRoute != null)
           Positioned(
             bottom: 20,
@@ -552,13 +546,12 @@ class _NavigationScreenState extends State<_NavigationScreen> {
   }
 }
 
-// Placeholder widget for the second tab
 class RouteScreen extends StatelessWidget {
   const RouteScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // You can build your actual Routes UI here later
+
     return const Scaffold(
       backgroundColor: Color(0xFFF7F7F9),
       body: Center(
