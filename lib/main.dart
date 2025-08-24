@@ -6,16 +6,22 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables first
+  await dotenv.load(fileName: ".env");
+
+  // Initialize Firebase
   await Firebase.initializeApp(
     options: const FirebaseOptions(
       apiKey: "AIzaSyB6IHbKnPhF3MnG6wJCE2SiDFR7M9RNajg",
       projectId: "carsada-app",
-      
-  await dotenv.load(fileName: ".env");
-  runApp(conmessagingSenderId: "412517034079",
+      messagingSenderId: "412517034079",
       appId: "1:412517034079:android:d2129c5ce73c74388253ea",
     ),
-  );st MyApp());
+  );
+
+  // Run the app
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
