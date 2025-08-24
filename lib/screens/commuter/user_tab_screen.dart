@@ -1,15 +1,16 @@
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:carsada_app/screens/auth/login_screen.dart';
 import 'package:carsada_app/components/menu_tile.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:hugeicons/hugeicons.dart';
+import 'package:carsada_app/screens/commuter/services/cloudinary_service.dart';
 import 'package:carsada_app/screens/commuter/profile_menus/about.dart';
 import 'package:carsada_app/screens/commuter/profile_menus/faqs.dart';
 import 'package:carsada_app/screens/commuter/profile_menus/send_feedback.dart';
-import 'package:carsada_app/screens/commuter/profile_menus/edit_profile.dart';  
+import 'package:carsada_app/screens/commuter/profile_menus/edit_profile.dart';
 
 class UserTabScreen extends StatefulWidget {
   const UserTabScreen({super.key});
@@ -17,14 +18,12 @@ class UserTabScreen extends StatefulWidget {
   @override
   State<UserTabScreen> createState() => _UserTabScreenState();
 }
-
-//back end
+//backend
 
 class _UserTabScreenState extends State<UserTabScreen> {
-  String username = '';
+  String username = 'User';
   String email = '';
-
-  final ImagePicker _picker = ImagePicker();
+  String profileImageUrl = '';
   File? _profileImage;
 
   @override
@@ -35,24 +34,67 @@ class _UserTabScreenState extends State<UserTabScreen> {
 
   Future<void> _loadUserData() async {
     try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        setState(() {
-          email = user.email ?? '';
-        });
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
 
-        if (userDoc.exists && mounted) {
+      setState(() => email = user.email ?? '');
+
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userDoc.exists && mounted) {
+        // Safe field access with null checks
+        final userData = userDoc.data() as Map<String, dynamic>?;
+
+        setState(() {
+          username =
+              userData?['username']?.toString() ??
+              user.displayName ??
+              user.email?.split('@').first ??
+              'User';
+
+          profileImageUrl = userData?['profileImage']?.toString() ?? '';
+        });
+      } else if (!userDoc.exists) {
+        // Create user document if it doesn't exist
+        await _createUserDocument(user);
+
+        // Set default values
+        if (mounted) {
           setState(() {
-            username = userDoc.get('username') ?? 'User';
+            username =
+                user.displayName ?? user.email?.split('@').first ?? 'User';
+            profileImageUrl = '';
           });
         }
       }
     } catch (e) {
       print('Error loading user data: $e');
+      // Set fallback values in case of error
+      if (mounted) {
+        setState(() {
+          username = 'User';
+          profileImageUrl = '';
+        });
+      }
+    }
+  }
+
+  Future<void> _createUserDocument(User user) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'username': user.displayName ?? user.email?.split('@').first ?? 'User',
+        'email': user.email,
+        'profileImage': '',
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      print('User document created successfully for ${user.uid}');
+    } catch (e) {
+      print('Error creating user document: $e');
+      // You might want to retry this or handle the error differently
     }
   }
 
@@ -60,50 +102,91 @@ class _UserTabScreenState extends State<UserTabScreen> {
     try {
       await FirebaseAuth.instance.signOut();
       if (mounted) {
-        Navigator.of(context).pushReplacement(
+        Navigator.pushReplacement(
+          context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
       }
     } catch (e) {
-      print('Logout error: $e');
+      _showAlert('Error', 'Failed to logout');
     }
   }
 
-  Future<void> _pickImage(ImageSource source) async {
+  Future<void> _pickImage() async {
     try {
-      final XFile? picked = await _picker.pickImage(
-        source: source,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 85,
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'bmp'],
+        allowMultiple: false,
       );
-      if (picked != null) {
-        setState(() {
-          _profileImage = File(picked.path);
-        });
+
+      if (result == null || result.files.isEmpty) return;
+
+      final file = result.files.first;
+      if (file.path == null) return;
+
+      final imageFile = File(file.path!);
+      final imageUrl = await CloudinaryService.uploadImage(imageFile);
+
+      if (imageUrl != null) {
+        await _updateProfileImage(imageUrl);
+        setState(() => _profileImage = imageFile);
+        _showAlert('Success', 'Profile picture updated!');
       }
     } catch (e) {
-      print('Image pick error: $e');
+      _showAlert('Error', 'Failed to update profile picture');
     }
   }
 
+  Future<void> _updateProfileImage(String imageUrl) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
 
-  //UI
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'profileImage': imageUrl,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      setState(() => profileImageUrl = imageUrl);
+    } catch (e) {
+      _showAlert('Error', 'Failed to save profile picture');
+      rethrow;
+    }
+  }
+
+  void _showAlert(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Container(
-          color: const Color(0xFFF7F7F9),
+        backgroundColor: const Color(0xFFF7F7F9),
+        body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Profile Section
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Profile Picture
                     SizedBox(
                       width: 123,
                       height: 123,
@@ -111,50 +194,52 @@ class _UserTabScreenState extends State<UserTabScreen> {
                         clipBehavior: Clip.none,
                         children: [
                           CircleAvatar(
-                            backgroundColor: Colors.grey,
                             radius: 61.5,
+                            backgroundColor: Colors.grey,
                             backgroundImage: _profileImage != null
                                 ? FileImage(_profileImage!)
-                                : null,
-                            child: _profileImage == null
-                                ? const Icon(Icons.person, color: Colors.white, size: 100)
+                                : (profileImageUrl.isNotEmpty
+                                          ? NetworkImage(profileImageUrl)
+                                          : null)
+                                      as ImageProvider?,
+                            child:
+                                _profileImage == null && profileImageUrl.isEmpty
+                                ? const Icon(
+                                    Icons.person,
+                                    size: 100,
+                                    color: Colors.white,
+                                  )
                                 : null,
                           ),
+                          // Camera Button
                           Positioned(
                             right: -2,
                             bottom: -2,
                             child: GestureDetector(
-                              onTap: () => _pickImage(ImageSource.gallery),
-                              child: SizedBox(
+                              onTap: _pickImage,
+                              child: Container(
                                 width: 39,
                                 height: 39,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Container(
-                                      width: 39,
-                                      height: 39,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFFF7F7F9),
-                                        shape: BoxShape.circle,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color(0xFFF7F7F9),
+                                ),
+                                child: Center(
+                                  child: Container(
+                                    width: 30,
+                                    height: 30,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white,
+                                    ),
+                                    child: const Center(
+                                      child: HugeIcon(
+                                        icon: HugeIcons.strokeRoundedCamera01,
+                                        size: 20,
+                                        color: Color(0xFF353232),
                                       ),
                                     ),
-                                    Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Center(
-                                        child: HugeIcon(
-                                          icon: HugeIcons.strokeRoundedCamera01,
-                                          size: 20,
-                                          color: Color(0xFF353232),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -163,97 +248,98 @@ class _UserTabScreenState extends State<UserTabScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          username,
-                          style: const TextStyle(fontSize: 20, color: Color(0xFF353232)),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          email,
-                          style: const TextStyle(fontSize: 14, color: Color(0xFF353232)),
-                        ),
-                      ],
+                    // User Info
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            username,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF353232),
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            email,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF353232),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 50),
 
-                Center(
-                  child: Container(
-                    width: 390,
-                    height: 260,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        MenuTile(menu: menus[0], showDivider: true,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => EditProfile(),
-                              ),
-                            );
-                          },
+                // Menu Options
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Column(
+                    children: [
+                      MenuTile(
+                        menu: menus[0],
+                        showDivider: true,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditProfile(),
+                          ),
                         ),
-                        MenuTile(menu: menus[1], showDivider: true, 
-                        onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => About(),
-                              ),
-                            );
-                          },
+                      ),
+                      MenuTile(
+                        menu: menus[1],
+                        showDivider: true,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => About()),
+                        ),
+                      ),
+                      MenuTile(
+                        menu: menus[2],
+                        showDivider: true,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Faqs()),
+                        ),
+                      ),
+                      MenuTile(
+                        menu: menus[3],
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => sendFeedback(),
                           ),
-                        MenuTile(menu: menus[2], showDivider: true, 
-                        onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Faqs(),
-                              ),
-                            );
-                          },
-                          ),
-                        MenuTile(menu: menus[3], 
-                        onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => sendFeedback(),
-                              ),
-                            );
-                          },
-                          ),
-                      ],
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                const SizedBox(height: 20),
 
-                const SizedBox(height: 30),
-                Center(
-                  child: Container(
-                    width: 390,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        MenuTile(menu: menus[4], showDivider: true),
-                        MenuTile(menu: menus[5], onTap: _logout),
-                      ],
-                    ),
+                // Bottom Menu
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Column(
+                    children: [
+                      MenuTile(menu: menus[4], showDivider: true),
+                      MenuTile(menu: menus[5], onTap: _logout),
+                    ],
                   ),
                 ),
               ],

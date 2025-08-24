@@ -16,7 +16,7 @@ class _SplashState extends State<Splash> {
   }
 
   Future<void> _navigateToLogin() async {
-    await Future.delayed(const Duration(seconds: 4), () {});
+    await Future.delayed(const Duration(seconds: 6), () {});
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -26,7 +26,7 @@ class _SplashState extends State<Splash> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfefefefe),
+      backgroundColor: const Color(0xFFF7F7F9),
       body: Container(
         alignment: Alignment.center,
         child: Column(
