@@ -27,6 +27,7 @@ class CloudinaryService {
       }
     } catch (e) {
       print('Cloudinary upload error: $e');
+      print('Jaycee agi');
       rethrow;
     }
   }
