@@ -85,6 +85,10 @@ flutter:
     - lib/assets/loading/
     - lib/assets/icons/
     - .env
+    - lib/assets/images/image1.jpg
+    - lib/assets/images/image2.jpg
+    - lib/assets/images/image3.jpg
+    - lib/assets/images/images4.jpg
 
   # To add assets to your application, add an assets section, like this:
   # assets:
