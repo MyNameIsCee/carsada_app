@@ -69,9 +69,7 @@ class _LandingPageState extends State<LandingPage> {
               return Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage(
-                      _backgroundImages[index],
-                    ), // FIXED: Changed NetworkImage to AssetImage
+                    image: AssetImage(_backgroundImages[index]),
                     fit: BoxFit.cover,
                   ),
                 ),
