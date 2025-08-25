@@ -6,6 +6,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables first
+  await dotenv.load(fileName: ".env");
+
+  // Initialize Firebase
   await Firebase.initializeApp(
     options: const FirebaseOptions(
       apiKey: "AIzaSyB6IHbKnPhF3MnG6wJCE2SiDFR7M9RNajg",
@@ -14,7 +19,8 @@ Future<void> main() async {
       appId: "1:412517034079:android:d2129c5ce73c74388253ea",
     ),
   );
-  await dotenv.load(fileName: ".env");
+
+  // Run the app
   runApp(const MyApp());
 }
 
