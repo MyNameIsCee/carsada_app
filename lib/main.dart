@@ -1,4 +1,3 @@
-import 'package:carsada_app/screens/commuter/services/cloudinary_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:carsada_app/screens/splash.dart';

@@ -176,17 +176,16 @@ class _UserTabScreenState extends State<UserTabScreen> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: const Color(0xFFF7F7F9),
-        body: SingleChildScrollView(
+        body: Container(
+          color: const Color(0xFFF7F7F9),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Profile Section
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Profile Picture
                     SizedBox(
                       width: 123,
                       height: 123,
@@ -211,7 +210,6 @@ class _UserTabScreenState extends State<UserTabScreen> {
                                   )
                                 : null,
                           ),
-                          // Camera Button
                           Positioned(
                             right: -2,
                             bottom: -2,
@@ -248,98 +246,97 @@ class _UserTabScreenState extends State<UserTabScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    // User Info
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            username,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF353232),
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            email,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF353232),
-                            ),
-                          ),
-                        ],
-                      ),
+                       Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          username,
+                          style: const TextStyle(fontSize: 20, color: Color(0xFF353232)),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          email,
+                          style: const TextStyle(fontSize: 14, color: Color(0xFF353232)),
+                        ),
+                      ],
                     ),
                   ],
                 ),
                 const SizedBox(height: 50),
 
-                // Menu Options
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Column(
-                    children: [
-                      MenuTile(
-                        menu: menus[0],
-                        showDivider: true,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EditProfile(),
+                 Center(
+                  child: Container(
+                    width: 390,
+                    height: 260,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        MenuTile(menu: menus[0], showDivider: true,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditProfile(),
+                              ),
+                            );
+                          },
+                        ),
+                        MenuTile(menu: menus[1], showDivider: true, 
+                        onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => About(),
+                              ),
+                            );
+                          },
                           ),
-                        ),
-                      ),
-                      MenuTile(
-                        menu: menus[1],
-                        showDivider: true,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => About()),
-                        ),
-                      ),
-                      MenuTile(
-                        menu: menus[2],
-                        showDivider: true,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Faqs()),
-                        ),
-                      ),
-                      MenuTile(
-                        menu: menus[3],
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => sendFeedback(),
+                        MenuTile(menu: menus[2], showDivider: true, 
+                        onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Faqs(),
+                              ),
+                            );
+                          },
                           ),
-                        ),
-                      ),
-                    ],
+                        MenuTile(menu: menus[3], 
+                        onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => sendFeedback(),
+                              ),
+                            );
+                          },
+                          ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 20),
 
-                // Bottom Menu
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Column(
-                    children: [
-                      MenuTile(menu: menus[4], showDivider: true),
-                      MenuTile(menu: menus[5], onTap: _logout),
-                    ],
+                const SizedBox(height: 30),
+                Center(
+                  child: Container(
+                    width: 390,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        MenuTile(menu: menus[4], showDivider: true),
+                        MenuTile(menu: menus[5], onTap: _logout),
+                      ],
+                    ),
                   ),
                 ),
               ],

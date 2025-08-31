@@ -41,7 +41,10 @@ String? usernameValidator(String? value) {
   if (value == null || value.isEmpty) {
     return 'Username field cannot be empty';
   }
-  if (value.length <= 3) {
+
+    final hasMinLength = value.length >= 3;
+
+  if (!hasMinLength) {
     return 'Username must be atleast 3 characters.';
   }
   return null;

@@ -6,6 +6,10 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://storage.googleapis.com/download.flutter.io") }
+        maven { url = uri("https://dl.google.com/dl/android/maven2/") }
+        maven { url = uri("https://repo.maven.apache.org/maven2/") }
+        maven { url = uri("https://jitpack.io") }
     }
 }
 

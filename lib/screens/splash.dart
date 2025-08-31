@@ -1,4 +1,3 @@
-import 'package:carsada_app/screens/auth/login_screen.dart';
 import 'package:carsada_app/screens/landing_page.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +16,7 @@ class _SplashState extends State<Splash> {
   }
 
   Future<void> _navigateToLogin() async {
-    await Future.delayed(const Duration(seconds: 6), () {});
+    await Future.delayed(const Duration(seconds: 4), () {});
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LandingPage()),

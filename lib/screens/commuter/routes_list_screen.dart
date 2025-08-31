@@ -3,7 +3,6 @@ import 'package:carsada_app/utils/jeepneyRoutes.dart';
 import 'package:carsada_app/controllers/navigation_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'home_screen.dart'; // Import to access NavigationController
 
 class RoutesListScreen extends StatelessWidget {
   const RoutesListScreen({super.key});

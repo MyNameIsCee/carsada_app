@@ -1,6 +1,5 @@
 // lib/controllers/navigation_controller.dart
 
-import 'package:carsada_app/utils/jeepneyRoutesLatLong.dart';
 import 'package:carsada_app/utils/jeepneyRoutes.dart';
 import 'package:get/get.dart';
 

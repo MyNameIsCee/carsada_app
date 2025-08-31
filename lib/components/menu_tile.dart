@@ -10,7 +10,7 @@ class UserTabMenu {
 }
 
 final List<UserTabMenu> menus = [
-  UserTabMenu(icon: HugeIcons.strokeRoundedEditUser02, title: 'Edit Profile'),
+  UserTabMenu(icon: HugeIcons.strokeRoundedEdit03, title: 'Edit Profile'),
   UserTabMenu(icon: HugeIcons.strokeRoundedInformationSquare, title: 'About'),
   UserTabMenu(icon: HugeIcons.strokeRoundedHelpSquare, title: 'Faqs'),
   UserTabMenu(icon: HugeIcons.strokeRoundedComment01, title: 'Send Feedback'),
