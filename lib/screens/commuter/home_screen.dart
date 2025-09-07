@@ -115,6 +115,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
   String _statusMessage = 'Initializing...';
   final List<Marker> _markers = [];
   Polyline? _walkingPath;
+  bool _isLocationFixed = false;
   
   StreamSubscription<Position>? _positionStreamSubscription;
 
@@ -318,6 +319,16 @@ class _NavigationScreenState extends State<_NavigationScreen> {
   Marker _createDestinationMarker() => Marker(key: const ValueKey('dest_marker'), point: _destinationPoint!, width: 80, height: 80, child: const Icon(Icons.location_on, color: Colors.red, size: 40));
   Marker _createBoardingMarker(LatLng p) => Marker(key: const ValueKey('board_marker'), point: p, width: 80, height: 80, child: const Icon(Icons.directions_bus, color: Colors.green, size: 35));
 
+
+  void _goToMyLocation() {
+    if (_userLocation != null) {
+      _mapController.move(_userLocation!, 15.0);
+      setState(() {
+        _isLocationFixed = true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(
@@ -331,6 +342,13 @@ class _NavigationScreenState extends State<_NavigationScreen> {
                 initialZoom: 13.0,
                 maxZoom: 18.0,
                 minZoom: 11.0,
+                onMapEvent: (MapEvent mapEvent) {
+                  if (mapEvent is MapEventMove && _isLocationFixed) {
+                    setState(() {
+                      _isLocationFixed = false;
+                    });
+                  }
+                },
               ),
               children: [
                 TileLayer(
@@ -412,17 +430,48 @@ class _NavigationScreenState extends State<_NavigationScreen> {
               ],
             ),
           ),
-          if (navController.selectedRoute.value != null)
-            Positioned(
-              bottom: 20,
-              right: 20,
-              child: FloatingActionButton(
-                onPressed: () => navController.clearRoute(),
-                backgroundColor: Colors.redAccent,
-                tooltip: 'Clear Route',
-                child: const Icon(Icons.clear, color: Colors.white),
-              ),
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 62,
+                  height: 62,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    onPressed: _goToMyLocation,
+                    icon: Icon(
+                      _isLocationFixed ? Icons.my_location : Icons.location_searching,
+                      color: _isLocationFixed ? Colors.blue : Colors.grey,
+                      size: 30,
+                    ),
+                    tooltip: 'My Location',
+                  ),
+                ),
+                if (navController.selectedRoute.value != null) ...[
+                  const SizedBox(height: 10),
+                  FloatingActionButton(
+                    onPressed: () => navController.clearRoute(),
+                    backgroundColor: Colors.redAccent,
+                    tooltip: 'Clear Route',
+                    child: const Icon(Icons.clear, color: Colors.white),
+                  ),
+                ],
+              ],
             ),
+          ),
         ],
       ),
     );

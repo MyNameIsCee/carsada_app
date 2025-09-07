@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:carsada_app/screens/commuter/profile_menus/change_password.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -271,7 +272,7 @@ class _UserTabScreenState extends State<UserTabScreen> {
                     height: 260,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -328,12 +329,21 @@ class _UserTabScreenState extends State<UserTabScreen> {
                     height: 120,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        MenuTile(menu: menus[4], showDivider: true),
+                        MenuTile(menu: menus[4], showDivider: true, 
+                           onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => changePassword(),
+                              ),
+                            );
+                          },
+                        ),
                         MenuTile(menu: menus[5], onTap: _logout),
                       ],
                     ),

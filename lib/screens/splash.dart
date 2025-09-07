@@ -16,7 +16,7 @@ class _SplashState extends State<Splash> {
   }
 
   Future<void> _navigateToLogin() async {
-    await Future.delayed(const Duration(seconds: 4), () {});
+    await Future.delayed(const Duration(milliseconds: 3500), () {});
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LandingPage()),
