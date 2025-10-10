@@ -247,7 +247,7 @@ class _UserTabScreenState extends State<UserTabScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                       Column(
+                      Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -266,7 +266,7 @@ class _UserTabScreenState extends State<UserTabScreen> {
                 ),
                 const SizedBox(height: 50),
 
-                 Center(
+                  Center(
                   child: Container(
                     width: 390,
                     height: 260,
@@ -335,7 +335,7 @@ class _UserTabScreenState extends State<UserTabScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         MenuTile(menu: menus[4], showDivider: true, 
-                           onTap: () {
+                            onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(

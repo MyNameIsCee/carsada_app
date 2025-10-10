@@ -1,5 +1,3 @@
-// lib/screens/commuter/home_screen.dart
-
 import 'package:carsada_app/screens/commuter/routeSuggestion_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -114,7 +112,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
   bool _isLoading = false;
   String _statusMessage = 'Initializing...';
   final List<Marker> _markers = [];
-  Polyline? _walkingPath;
+  Polyline? _walkingPath; // walking route to avoid buildings and obstacles
   bool _isLocationFixed = false;
   
   StreamSubscription<Position>? _positionStreamSubscription;
@@ -127,17 +125,19 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       if (mounted) setState(() {});
     });
 
-    ever(navController.selectedRoute, (JeepneyRoute? route) {
+    ever(navController.selectedRoute, (JeepneyRoute? route) async {
       if (!mounted) return;
       if (route != null) {
         if (_destinationPoint != null && _userLocation != null) {
           final boardingPoint = _findNearestPoint(_userLocation!, route.coordinates);
+          
+          final walkingPoints = await _getWalkingRoute(_userLocation!, boardingPoint);
+          
           setState(() {
             _walkingPath = Polyline(
-              points: [_userLocation!, boardingPoint],
+              points: walkingPoints, //walking path coordinates
               strokeWidth: 5,
               color: Colors.teal,
-              // isDotted: true, // <-- FIX: Removed as it's not supported in your package version
             );
             _markers.removeWhere((m) => m.key == const ValueKey('board_marker'));
             _markers.add(_createBoardingMarker(boardingPoint));
@@ -319,6 +319,26 @@ class _NavigationScreenState extends State<_NavigationScreen> {
   Marker _createDestinationMarker() => Marker(key: const ValueKey('dest_marker'), point: _destinationPoint!, width: 80, height: 80, child: const Icon(Icons.location_on, color: Colors.red, size: 40));
   Marker _createBoardingMarker(LatLng p) => Marker(key: const ValueKey('board_marker'), point: p, width: 80, height: 80, child: const Icon(Icons.directions_bus, color: Colors.green, size: 35));
 
+  Future<List<LatLng>> _getWalkingRoute(LatLng start, LatLng end) async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://router.project-osrm.org/route/v1/walking/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&geometries=geojson'),
+        headers: {'User-Agent': 'Carsada'},
+      );
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['routes'] != null && data['routes'].isNotEmpty) {
+          final coordinates = data['routes'][0]['geometry']['coordinates'] as List;
+          return coordinates.map<LatLng>((coord) => LatLng(coord[1], coord[0])).toList();
+        }
+      }
+    } catch (e) {
+      print('Walking route error: $e');
+    }
+    
+    return [start, end];
+  }
 
   void _goToMyLocation() {
     if (_userLocation != null) {
