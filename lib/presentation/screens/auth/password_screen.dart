@@ -1,11 +1,11 @@
-import 'package:carsada_app/screens/auth/authentication.dart';
+import 'package:carsada_app/presentation/screens/auth/authentication.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:carsada_app/components/text_box.dart';
-import 'package:carsada_app/components/button.dart';
-import 'package:carsada_app/components/back_icon.dart';
-import 'package:carsada_app/validator/validator.dart';
-import 'package:carsada_app/screens/commuter/home_screen.dart';
+import 'package:carsada_app/presentation/components/text_box.dart';
+import 'package:carsada_app/presentation/components/button.dart';
+import 'package:carsada_app/presentation/components/back_icon.dart';
+import 'package:carsada_app/data/validator/validator.dart';
+import 'package:carsada_app/presentation/screens/commuter/home_screen.dart';
 
 class PasswordScreen extends StatefulWidget {
   final String username;

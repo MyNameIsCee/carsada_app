@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:carsada_app/components/text_box.dart';
-import 'package:carsada_app/components/button.dart';
-import 'package:carsada_app/components/back_icon.dart';
-import 'package:carsada_app/screens/auth/password_screen.dart';
-import 'package:carsada_app/validator/validator.dart';
+import 'package:carsada_app/presentation/components/text_box.dart';
+import 'package:carsada_app/presentation/components/button.dart';
+import 'package:carsada_app/presentation/components/back_icon.dart';
+import 'package:carsada_app/presentation/screens/auth/password_screen.dart';
+import 'package:carsada_app/data/validator/validator.dart';
 
 class EmailScreen extends StatefulWidget {
   final String username;

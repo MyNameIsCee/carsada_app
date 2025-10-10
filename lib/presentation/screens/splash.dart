@@ -1,4 +1,6 @@
-import 'package:carsada_app/screens/landing_page.dart';
+import 'package:carsada_app/presentation/screens/commuter/home_screen.dart';
+import 'package:carsada_app/presentation/screens/landing_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Splash extends StatefulWidget {
@@ -12,15 +14,25 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
-    _navigateToLogin();
+    _navigateToNextScreen();
   }
 
-  Future<void> _navigateToLogin() async {
+  Future<void> _navigateToNextScreen() async {
     await Future.delayed(const Duration(milliseconds: 3500), () {});
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LandingPage()),
-    );
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LandingPage()),
+      );
+    }
   }
 
   @override

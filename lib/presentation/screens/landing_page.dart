@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:carsada_app/screens/auth/login_screen.dart';
-import 'package:carsada_app/screens/auth/username_screen.dart';
+import 'package:carsada_app/presentation/screens/auth/login_screen.dart';
+import 'package:carsada_app/presentation/screens/auth/username_screen.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
