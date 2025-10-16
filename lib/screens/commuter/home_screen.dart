@@ -24,76 +24,223 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final List<Widget> screens = const [
     _NavigationScreen(),
     RoutesListScreen(),
     UserTabScreen(),
   ];
 
+  AnimationController? _animationController;
+  Animation<double>? _heightAnimation;
+  bool _isExpanded = false;
+  double _dragOffset = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _heightAnimation = Tween<double>(
+      begin: 50.0,
+      end: 655.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController!,
+      curve: Curves.slowMiddle,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _animationController?.dispose();
+    super.dispose();
+  }
+
+//bottom navigation...
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(NavigationController());
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F9),
-      bottomNavigationBar: Obx(() => bottomNavi(controller)),
-      body: Obx(
-        () => IndexedStack(
-          index: controller.selectedIndex.value,
-          children: screens,
+      backgroundColor: const Color(0xFFFEFEFE),
+      bottomNavigationBar: Container(
+        color: Colors.transparent,
+        child: Obx(() => bottomNavi(controller)),
+      ),
+      body: Container(
+        color: Colors.transparent,
+        child: Obx(
+          () => IndexedStack(
+            index: controller.selectedIndex.value,
+            children: screens,
+          ),
         ),
       ),
+      extendBody: true,
     );
   }
 
   Widget bottomNavi(NavigationController controller) {
     return Container(
-      decoration: const BoxDecoration(
-        border: Border(
-          top: BorderSide(color: Color.fromARGB(255, 189, 188, 188), width: 0.5),
+      color: Colors.transparent,
+      child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+           if (controller.selectedIndex.value == 0)
+             GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+              },
+              onPanStart: (details) {
+                if (_animationController != null) {
+                  _dragOffset = _animationController!.value * 375.0;
+                } else {
+                  _dragOffset = 0.0;
+                }
+              },
+               onPanUpdate: (details) {
+                 if (_animationController == null) return;
+                 _dragOffset -= details.delta.dy * 0.5; 
+                 _dragOffset = _dragOffset.clamp(0.0, 375.0);
+                 double progress = _dragOffset / 375.0;
+                 _animationController!.value = progress;
+                 _isExpanded = _dragOffset > 50;
+               },
+               onPanEnd: (details) {
+                 if (_animationController == null) return;
+                 if (_dragOffset > 250) {
+                   _isExpanded = true;
+                   _animationController!.forward();
+                 } else if (_dragOffset < 50) {
+                   _isExpanded = false;
+                   _animationController!.reverse();
+                 }
+                 _dragOffset = 0.0;
+               },
+              child: AnimatedBuilder(
+                animation: _heightAnimation ?? const AlwaysStoppedAnimation(40.0),
+                builder: (context, child) {
+                  return Container(
+                    height: _heightAnimation?.value ?? 40.0,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                decoration: BoxDecoration( 
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                  color: const Color(0xFFFEFEFE),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 50,
+                            height: 3,
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 203, 201, 209),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Routes',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF051D30),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                     if (_isExpanded) ...[
+                       SizedBox(height: 20),
+                       Expanded(
+                         child: Container(
+                           width: double.infinity,
+                           padding: EdgeInsets.all(16),
+                           child: Center(
+                             child: Text(
+                               'Route list',
+                               style: TextStyle(
+                                 fontSize: 14,
+                                 color: Color(0xFF051D30).withOpacity(0.6),
+                               ),
+                             ),
+                           ),
+                         ),
+                       ),
+                     ],
+                  ],
+                ),
+              );
+                },
+              ),
+          ),
+
+        // bottom navigation bar
+        Container(
+          decoration: const BoxDecoration(
+            border: Border(
+              top: BorderSide(color: Color.fromARGB(255, 189, 188, 188), width: 0.5),
+            ),
+          ),
+          child: NavigationBar(
+            backgroundColor: Colors.white,
+            indicatorColor: Colors.transparent,
+            height: 60,
+            elevation: 0,
+            selectedIndex: controller.selectedIndex.value,
+            onDestinationSelected: (index) {
+              if (controller.selectedIndex.value == 0 && index != 0) {
+                _isExpanded = false;
+                _dragOffset = 0.0;
+                _animationController?.reverse();
+              }
+              controller.selectedIndex.value = index;
+            },
+            destinations: const [
+              NavigationDestination(
+                icon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedNavigation03, size: 24, color: Color(0xFF353232),
+                ),
+                selectedIcon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedNavigation03, size: 24, color: Color(0xFFFFCC00),
+                ),
+                label: 'Navigation',
+              ),
+              NavigationDestination(
+                icon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedRoute02, size: 24, color: Color(0xFF353232),
+                ),
+                selectedIcon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedRoute02, size: 24, color: Color(0xFFFFCC00),
+                ),
+                label: 'Routes',
+              ),
+              NavigationDestination(
+                icon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedUser, size: 24, color: Color(0xFF353232),
+                ),
+                selectedIcon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedUser, size: 24, color: Color(0xFFFFCC00),
+                ),
+                label: 'Profile',
+              ),
+            ],
+          ),
         ),
-      ),
-      child: NavigationBar(
-        backgroundColor: Colors.white,
-        indicatorColor: Colors.transparent,
-        height: 60,
-        elevation: 0,
-        selectedIndex: controller.selectedIndex.value,
-        onDestinationSelected: (index) => controller.selectedIndex.value = index,
-        destinations: const [
-          NavigationDestination(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedNavigation03, size: 24, color: Color(0xFF353232),
-            ),
-            selectedIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedNavigation03, size: 24, color: Color(0xFFFFCC00),
-            ),
-            label: 'Navigation',
-          ),
-          NavigationDestination(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedRoute02, size: 24, color: Color(0xFF353232),
-            ),
-            selectedIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedRoute02, size: 24, color: Color(0xFFFFCC00),
-            ),
-            label: 'Routes',
-          ),
-          NavigationDestination(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedUser, size: 24, color: Color(0xFF353232),
-            ),
-            selectedIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedUser, size: 24, color: Color(0xFFFFCC00),
-            ),
-            label: 'Profile',
-          ),
-        ],
-      ),
+      ],
+    ),
     );
   }
-}
+}   //..up to here
 
 class _NavigationScreen extends StatefulWidget {
   const _NavigationScreen();
@@ -137,7 +284,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
               points: [_userLocation!, boardingPoint],
               strokeWidth: 5,
               color: Colors.teal,
-              // isDotted: true, // <-- FIX: Removed as it's not supported in your package version
             );
             _markers.removeWhere((m) => m.key == const ValueKey('board_marker'));
             _markers.add(_createBoardingMarker(boardingPoint));
@@ -315,7 +461,36 @@ class _NavigationScreenState extends State<_NavigationScreen> {
 
   double _calculateDistance(LatLng p1, LatLng p2) => Geolocator.distanceBetween(p1.latitude, p1.longitude, p2.latitude, p2.longitude);
   LatLng _findNearestPoint(LatLng p, List<LatLng> ps) { LatLng n=ps.first;double m=_calculateDistance(p, n);for(var pt in ps){double d=_calculateDistance(p, pt);if(d<m){m=d;n=pt;}}return n; }
-  Marker _createUserMarker() => Marker(key: const ValueKey('user_marker'), point: _userLocation!, width: 80, height: 80, child: const Icon(Icons.person_pin_circle, color: Colors.orangeAccent, size: 35));
+  Marker _createUserMarker() => Marker(
+        key: const ValueKey('user_marker'),
+        point: _userLocation!,
+        width: 40,
+        height: 40,
+        child: Container(
+          alignment: Alignment.center,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                ),
+              ),
+              Container(
+                width: 16,
+                height: 16,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.blue,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
   Marker _createDestinationMarker() => Marker(key: const ValueKey('dest_marker'), point: _destinationPoint!, width: 80, height: 80, child: const Icon(Icons.location_on, color: Colors.red, size: 40));
   Marker _createBoardingMarker(LatLng p) => Marker(key: const ValueKey('board_marker'), point: p, width: 80, height: 80, child: const Icon(Icons.directions_bus, color: Colors.green, size: 35));
 
@@ -329,6 +504,9 @@ class _NavigationScreenState extends State<_NavigationScreen> {
     }
   }
 
+  //UI
+  
+  //changed the UI to more simpler and cleaner, reference is at our figma
   @override
   Widget build(BuildContext context) {
     return Obx(
@@ -366,112 +544,87 @@ class _NavigationScreenState extends State<_NavigationScreen> {
               ],
             ),
           ),
-          Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
-                color: const Color.fromRGBO(255, 204, 0, 1),
-                height: 160,
-                width: double.infinity,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Text('Navigation', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black)),
-                      SizedBox(height: 4),
-                      Text("Para po! San punta natin?", style: TextStyle(fontSize: 14, color: Colors.black87)),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-            ],
-          ),
-          Positioned(
-            right: -60,
-            top: 3,
-            child: Image.asset('lib/assets/images/jeep.png', width: 220, height: 220, fit: BoxFit.contain),
-          ),
-          Positioned(
-            left: 20,
-            right: 20,
-            top: 160 - 30,
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3))],
-                  ),
-                  alignment: Alignment.centerLeft,
-                  child: TextField(
-                    controller: _destinationController,
-                    decoration: const InputDecoration(
-                      hintText: 'Enter your destination',
-                      border: InputBorder.none,
-                      hintStyle: TextStyle(color: Colors.black54, fontSize: 16),
-                      icon: Icon(Icons.search, color: Colors.black54),
-                    ),
-                    style: const TextStyle(fontSize: 16),
-                    onSubmitted: (_) => _findDestination(),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _statusMessage,
-                  style: TextStyle(color: _isLoading ? Colors.grey : Color(0xFF353232), backgroundColor: Colors.white.withOpacity(0.7)),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: 20,
-            right: 20,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 62,
-                  height: 62,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    onPressed: _goToMyLocation,
-                    icon: Icon(
-                      _isLocationFixed ? Icons.my_location : Icons.location_searching,
-                      color: _isLocationFixed ? Colors.blue : Colors.grey,
-                      size: 30,
-                    ),
-                    tooltip: 'My Location',
-                  ),
-                ),
-                if (navController.selectedRoute.value != null) ...[
-                  const SizedBox(height: 10),
-                  FloatingActionButton(
-                    onPressed: () => navController.clearRoute(),
-                    backgroundColor: Colors.redAccent,
-                    tooltip: 'Clear Route',
-                    child: const Icon(Icons.clear, color: Colors.white),
-                  ),
-                ],
-              ],
-            ),
-          ),
+           Column(
+             children: [
+               Container(
+                 decoration: const BoxDecoration(
+                   color: Color.fromARGB(255, 254, 254, 254),
+                   border: Border(
+                     bottom: BorderSide(color: Color.fromARGB(255, 189, 188, 188), width: 0.5),
+                   ),
+                 ),
+                 height: 85,
+                 width: double.infinity,
+                 child: Align(
+                   alignment: Alignment.bottomLeft,
+                   child: Padding(
+                     padding: const EdgeInsets.only(left: 20, bottom: 5),
+                     child: const Text('carsada', style: TextStyle(fontFamily: 'Roboto', fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFFFFCC00))),
+                   ),
+                 ),
+               ),
+               const SizedBox(height: 10),
+
+               // changed the search bar
+               Padding(
+                 padding: const EdgeInsets.symmetric(horizontal: 20),
+                 child: Column(
+                   children: [
+                     Container(
+                       padding: const EdgeInsets.symmetric(horizontal: 16),
+                       height: 50,
+                       decoration: BoxDecoration(
+                         color: Colors.white,
+                         borderRadius: BorderRadius.circular(30),
+                         boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3))],
+                       ),
+                       alignment: Alignment.centerLeft,
+                       child: TextField(
+                         controller: _destinationController,
+                         decoration: const InputDecoration(
+                           hintText: 'Enter your destination',
+                           border: InputBorder.none,
+                           hintStyle: TextStyle(color: Colors.black54, fontSize: 16),
+                           icon: Icon(Icons.search, color: Colors.black54),
+                         ),
+                         style: const TextStyle(fontSize: 16),
+                         onSubmitted: (_) => _findDestination(),
+                       ),
+                     ),
+                     const SizedBox(height: 8),
+                     Text(
+                       _statusMessage,
+                       style: TextStyle(color: _isLoading ? Colors.grey : Color(0xFF353232), backgroundColor: Colors.white.withOpacity(0.7)),
+                       textAlign: TextAlign.center,
+                     ),
+                   ],
+                 ),
+               ),
+             ],
+           ),
+
+             // Locator floating above routes container
+             Positioned(
+               bottom: 150,
+               right: 20,
+               child: Container(
+                 width: 50,
+                 height: 50,
+                 decoration: BoxDecoration(
+                   borderRadius: BorderRadius.circular(15),
+                   color: const Color(0xFFFEFEFE),
+                 ),
+                 child: IconButton(
+                   onPressed: _goToMyLocation,
+                   icon: Icon(
+                     _isLocationFixed ? Icons.my_location : Icons.location_searching,
+                     color: _isLocationFixed ? Colors.blue : Colors.grey,
+                     size: 25,
+                   ),
+                   tooltip: 'My Location',
+                 ),
+               ),
+             ),
         ],
       ),
     );

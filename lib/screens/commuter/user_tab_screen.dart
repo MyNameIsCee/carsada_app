@@ -176,9 +176,9 @@ class _UserTabScreenState extends State<UserTabScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xFFF7F7F9),
+        backgroundColor: const Color(0xFFFEFEFE),
         body: Container(
-          color: const Color(0xFFF7F7F9),
+          color: const Color(0xFFFEFEFE),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -271,7 +271,7 @@ class _UserTabScreenState extends State<UserTabScreen> {
                     width: 390,
                     height: 260,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFFF5F4F9),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
@@ -328,7 +328,7 @@ class _UserTabScreenState extends State<UserTabScreen> {
                     width: 390,
                     height: 120,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFFF5F4F9),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
