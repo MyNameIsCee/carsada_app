@@ -19,7 +19,6 @@ class UserTabScreen extends StatefulWidget {
   @override
   State<UserTabScreen> createState() => _UserTabScreenState();
 }
-//backend
 
 class _UserTabScreenState extends State<UserTabScreen> {
   String username = 'User';
@@ -46,7 +45,6 @@ class _UserTabScreenState extends State<UserTabScreen> {
           .get();
 
       if (userDoc.exists && mounted) {
-        // Safe field access with null checks
         final userData = userDoc.data() as Map<String, dynamic>?;
 
         setState(() {
@@ -59,10 +57,8 @@ class _UserTabScreenState extends State<UserTabScreen> {
           profileImageUrl = userData?['profileImage']?.toString() ?? '';
         });
       } else if (!userDoc.exists) {
-        // Create user document if it doesn't exist
         await _createUserDocument(user);
 
-        // Set default values
         if (mounted) {
           setState(() {
             username =
@@ -73,7 +69,6 @@ class _UserTabScreenState extends State<UserTabScreen> {
       }
     } catch (e) {
       print('Error loading user data: $e');
-      // Set fallback values in case of error
       if (mounted) {
         setState(() {
           username = 'User';
@@ -95,8 +90,83 @@ class _UserTabScreenState extends State<UserTabScreen> {
       print('User document created successfully for ${user.uid}');
     } catch (e) {
       print('Error creating user document: $e');
-      // You might want to retry this or handle the error differently
     }
+  }
+
+  Future<void> _showLogoutConfirmation() async {
+      return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(20), 
+            width: MediaQuery.of(context).size.width * 0.8,  
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,  
+              children: [
+                const SizedBox(height: 5),
+                const Text(
+                  'Log out of your account?',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFF353232),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                  Row(
+                  mainAxisAlignment: MainAxisAlignment.end,  
+                  children: [
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: const Text(
+                          'CANCEL',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF353232),
+                          ),
+                        ),
+                      ),
+                    
+                    const SizedBox(width: 5),
+                    ElevatedButton(
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+                        await _logout();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),  
+                        backgroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        'LOG OUT',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _logout() async {
@@ -176,9 +246,9 @@ class _UserTabScreenState extends State<UserTabScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xFFFEFEFE),
+        backgroundColor: const Color(0xFFF7F7F9),
         body: Container(
-          color: const Color(0xFFFEFEFE),
+          color: const Color(0xFFF7F7F9),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -247,7 +317,7 @@ class _UserTabScreenState extends State<UserTabScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                      Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -265,19 +335,20 @@ class _UserTabScreenState extends State<UserTabScreen> {
                   ],
                 ),
                 const SizedBox(height: 50),
-
-                  Center(
+                Center(
                   child: Container(
                     width: 390,
                     height: 260,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5F4F9),
-                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        MenuTile(menu: menus[0], showDivider: true,
+                        MenuTile(
+                          menu: menus[0],
+                          showDivider: true,
                           onTap: () {
                             Navigator.push(
                               context,
@@ -287,8 +358,10 @@ class _UserTabScreenState extends State<UserTabScreen> {
                             );
                           },
                         ),
-                        MenuTile(menu: menus[1], showDivider: true, 
-                        onTap: () {
+                        MenuTile(
+                          menu: menus[1],
+                          showDivider: true,
+                          onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -296,9 +369,11 @@ class _UserTabScreenState extends State<UserTabScreen> {
                               ),
                             );
                           },
-                          ),
-                        MenuTile(menu: menus[2], showDivider: true, 
-                        onTap: () {
+                        ),
+                        MenuTile(
+                          menu: menus[2],
+                          showDivider: true,
+                          onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -306,9 +381,10 @@ class _UserTabScreenState extends State<UserTabScreen> {
                               ),
                             );
                           },
-                          ),
-                        MenuTile(menu: menus[3], 
-                        onTap: () {
+                        ),
+                        MenuTile(
+                          menu: menus[3],
+                          onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -316,26 +392,27 @@ class _UserTabScreenState extends State<UserTabScreen> {
                               ),
                             );
                           },
-                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 30),
                 Center(
                   child: Container(
                     width: 390,
                     height: 120,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5F4F9),
-                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        MenuTile(menu: menus[4], showDivider: true, 
-                            onTap: () {
+                        MenuTile(
+                          menu: menus[4],
+                          showDivider: true,
+                          onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -344,7 +421,10 @@ class _UserTabScreenState extends State<UserTabScreen> {
                             );
                           },
                         ),
-                        MenuTile(menu: menus[5], onTap: _logout),
+                        MenuTile(
+                          menu: menus[5],
+                          onTap: _showLogoutConfirmation,
+                        ),
                       ],
                     ),
                   ),

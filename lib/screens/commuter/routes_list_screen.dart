@@ -2,6 +2,7 @@ import 'package:carsada_app/utils/jeepneyRoutesLatLong.dart';
 import 'package:carsada_app/utils/jeepneyRoutes.dart';
 import 'package:carsada_app/controllers/navigation_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class RoutesListScreen extends StatelessWidget {
@@ -9,7 +10,6 @@ class RoutesListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get the instance of our navigation controller
     final NavigationController navController = Get.find<NavigationController>();
     final List<JeepneyRoute> allRoutes = allJeepneyRoutes;
 
@@ -25,7 +25,7 @@ class RoutesListScreen extends StatelessWidget {
           ),
         ),
         elevation: 1,
-        automaticallyImplyLeading: false, // Removes the back button
+        automaticallyImplyLeading: false, //removes the back button
       ),
       body: ListView.builder(
         itemCount: allRoutes.length,
@@ -33,7 +33,8 @@ class RoutesListScreen extends StatelessWidget {
           final route = allRoutes[index];
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            elevation: 2,
+            elevation: 0,
+            color: Colors.transparent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
@@ -50,7 +51,6 @@ class RoutesListScreen extends StatelessWidget {
                 backgroundColor: route.color.withOpacity(0.2),
                 child: Icon(Icons.directions_bus, color: route.color, size: 22),
               ),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
               onTap: () {
                 // This is the key action:
                 // Call the pickRoute method on the controller.

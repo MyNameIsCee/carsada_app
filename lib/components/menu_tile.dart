@@ -45,7 +45,7 @@ class MenuTile extends StatelessWidget {
             child: const Align(
               alignment: Alignment.centerRight,
               child: Divider(
-                color: Color(0xFFE2E1E6),
+                color: Color(0xFFF7F7F9),
                 height: 1,
                 thickness: 2,
               ),

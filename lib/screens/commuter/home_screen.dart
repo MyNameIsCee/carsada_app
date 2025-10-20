@@ -12,7 +12,6 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:carsada_app/utils/jeepneyRoutes.dart';
 import 'package:carsada_app/utils/jeepneyRoutesLatLong.dart';
-import 'package:carsada_app/screens/commuter/routes_list_screen.dart';
 import 'package:carsada_app/controllers/navigation_controller.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,41 +21,16 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> screens = const [
     _NavigationScreen(),
-    RoutesListScreen(),
+    _NavigationScreen(), 
     UserTabScreen(),
   ];
 
-  AnimationController? _animationController;
-  Animation<double>? _heightAnimation;
   bool _isExpanded = false;
-  double _dragOffset = 0.0;
 
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-    _heightAnimation = Tween<double>(
-      begin: 50.0,
-      end: 655.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController!,
-      curve: Curves.slowMiddle,
-    ));
-  }
-
-  @override
-  void dispose() {
-    _animationController?.dispose();
-    super.dispose();
-  }
-
-//bottom navigation...
+  //bottom navigation...
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(NavigationController());
@@ -83,57 +57,143 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Container(
       color: Colors.transparent,
       child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-           if (controller.selectedIndex.value == 0)
-             GestureDetector(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (controller.selectedIndex.value == 0) 
+            GestureDetector(
               behavior: HitTestBehavior.translucent,
               onTap: () {
+                setState(() {
+                  _isExpanded = !_isExpanded;
+                });
               },
               onPanStart: (details) {
-                if (_animationController != null) {
-                  _dragOffset = _animationController!.value * 375.0;
-                } else {
-                  _dragOffset = 0.0;
+              },
+              onPanUpdate: (details) {
+                if (details.delta.dy < -5) {
+                  if (!_isExpanded) {
+                    setState(() {
+                      _isExpanded = true;
+                    });
+                  }
+                } else if (details.delta.dy > 5) {
+                  if (_isExpanded) {
+                    setState(() {
+                      _isExpanded = false;
+                    });
+                  }
                 }
               },
-               onPanUpdate: (details) {
-                 if (_animationController == null) return;
-                 _dragOffset -= details.delta.dy * 0.5; 
-                 _dragOffset = _dragOffset.clamp(0.0, 375.0);
-                 double progress = _dragOffset / 375.0;
-                 _animationController!.value = progress;
-                 _isExpanded = _dragOffset > 50;
-               },
-               onPanEnd: (details) {
-                 if (_animationController == null) return;
-                 if (_dragOffset > 250) {
-                   _isExpanded = true;
-                   _animationController!.forward();
-                 } else if (_dragOffset < 50) {
-                   _isExpanded = false;
-                   _animationController!.reverse();
-                 }
-                 _dragOffset = 0.0;
-               },
-              child: AnimatedBuilder(
-                animation: _heightAnimation ?? const AlwaysStoppedAnimation(40.0),
-                builder: (context, child) {
-                  return Container(
-                    height: _heightAnimation?.value ?? 40.0,
+              onPanEnd: (details) {
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                height: _isExpanded ? 655.0 : 50.0,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                decoration: BoxDecoration( 
+                decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
                   ),
                   color: const Color(0xFFFEFEFE),
                 ),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
+                child: _isExpanded 
+                  ? Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 50,
+                                height: 3,
+                                decoration: BoxDecoration(
+                                  color: const Color.fromARGB(255, 203, 201, 209),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Routes',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xFF051D30),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            width: double.infinity,
+                            child: ListView.builder(
+                              itemCount: allJeepneyRoutes.length,
+                              itemBuilder: (context, index) {
+                                final route = allJeepneyRoutes[index];
+                                final NavigationController navController = Get.find<NavigationController>();
+
+                                return Container(
+                                  width: 390,
+                                  height: 85,
+                                  margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: Colors.transparent,
+                                  ),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(20),
+                                      splashColor: Colors.yellow.withOpacity(0.3),
+                                      highlightColor: Colors.yellow.withOpacity(0.1),
+                                      onTap: () {
+                                        navController.pickRoute(route);
+                                        setState(() {
+                                          _isExpanded = false; 
+                                        });
+                                      },
+                                      child: Container(
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.directions_bus,
+                                              color: const Color(0xFFFFCC00),
+                                              size: 30,
+                                            ),
+                                            const SizedBox(width: 16),
+                                            Expanded(
+                                              child: Text(
+                                                route.name,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 14,
+                                                  color: Color(0xFF051D30),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Container(
+                      height: 50.0,
+                      padding: const EdgeInsets.symmetric( vertical: 4),
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
                             width: 50,
@@ -157,85 +217,73 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ],
                       ),
                     ),
-                     if (_isExpanded) ...[
-                       SizedBox(height: 20),
-                       Expanded(
-                         child: Container(
-                           width: double.infinity,
-                           padding: EdgeInsets.all(16),
-                           child: Center(
-                             child: Text(
-                               'Route list',
-                               style: TextStyle(
-                                 fontSize: 14,
-                                 color: Color(0xFF051D30).withOpacity(0.6),
-                               ),
-                             ),
-                           ),
-                         ),
-                       ),
-                     ],
-                  ],
-                ),
-              );
-                },
               ),
-          ),
+            ),
 
-        // bottom navigation bar
-        Container(
-          decoration: const BoxDecoration(
-            border: Border(
-              top: BorderSide(color: Color.fromARGB(255, 189, 188, 188), width: 0.5),
+          // bottom navigation bar
+          Container(
+            decoration: const BoxDecoration(
+              border: Border(
+                top: BorderSide(color: Color.fromARGB(255, 189, 188, 188), width: 0.5),
+              ),
+            ),
+            child: NavigationBar(
+              backgroundColor: Colors.white,
+              indicatorColor: Colors.transparent,
+              height: 60,
+              elevation: 0,
+              selectedIndex: _isExpanded ? 1 : controller.selectedIndex.value,
+              onDestinationSelected: (index) {
+                if (index == 1) {
+                  setState(() {
+                    _isExpanded = true;
+                  });
+                  controller.selectedIndex.value = 0; 
+                } else if (index == 2) {
+                  setState(() {
+                    _isExpanded = false;
+                  });
+                  controller.selectedIndex.value = index;
+                } else if (index == 0) {
+                  setState(() {
+                    _isExpanded = false;
+                  });
+                  controller.selectedIndex.value = index;
+                }
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: HugeIcon(
+                    icon: HugeIcons.strokeRoundedNavigation03, size: 24, color: Color(0xFF353232),
+                  ),
+                  selectedIcon: HugeIcon(
+                    icon: HugeIcons.strokeRoundedNavigation03, size: 24, color: Color(0xFFFFCC00),
+                  ),
+                  label: 'Navigation',
+                ),
+                NavigationDestination(
+                  icon: HugeIcon(
+                    icon: HugeIcons.strokeRoundedRoute02, size: 24, color: Color(0xFF353232),
+                  ),
+                  selectedIcon: HugeIcon(
+                    icon: HugeIcons.strokeRoundedRoute02, size: 24, color: Color(0xFFFFCC00),
+                  ),
+                  label: 'Routes',
+                ),
+                NavigationDestination(
+                  icon: HugeIcon(
+                    icon: HugeIcons.strokeRoundedUser, size: 24, color: Color(0xFF353232),
+                  ),
+                  selectedIcon: HugeIcon(
+                    icon: HugeIcons.strokeRoundedUser, size: 24, color: Color(0xFFFFCC00),
+                  ),
+                  label: 'Profile',
+                ),
+              ],
             ),
           ),
-          child: NavigationBar(
-            backgroundColor: Colors.white,
-            indicatorColor: Colors.transparent,
-            height: 60,
-            elevation: 0,
-            selectedIndex: controller.selectedIndex.value,
-            onDestinationSelected: (index) {
-              if (controller.selectedIndex.value == 0 && index != 0) {
-                _isExpanded = false;
-                _dragOffset = 0.0;
-                _animationController?.reverse();
-              }
-              controller.selectedIndex.value = index;
-            },
-            destinations: const [
-              NavigationDestination(
-                icon: HugeIcon(
-                  icon: HugeIcons.strokeRoundedNavigation03, size: 24, color: Color(0xFF353232),
-                ),
-                selectedIcon: HugeIcon(
-                  icon: HugeIcons.strokeRoundedNavigation03, size: 24, color: Color(0xFFFFCC00),
-                ),
-                label: 'Navigation',
-              ),
-              NavigationDestination(
-                icon: HugeIcon(
-                  icon: HugeIcons.strokeRoundedRoute02, size: 24, color: Color(0xFF353232),
-                ),
-                selectedIcon: HugeIcon(
-                  icon: HugeIcons.strokeRoundedRoute02, size: 24, color: Color(0xFFFFCC00),
-                ),
-                label: 'Routes',
-              ),
-              NavigationDestination(
-                icon: HugeIcon(
-                  icon: HugeIcons.strokeRoundedUser, size: 24, color: Color(0xFF353232),
-                ),
-                selectedIcon: HugeIcon(
-                  icon: HugeIcons.strokeRoundedUser, size: 24, color: Color(0xFFFFCC00),
-                ),
-                label: 'Profile',
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
+        ],
+      ),
     );
   }
 }   //..up to here
@@ -261,7 +309,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
   final List<Marker> _markers = [];
   Polyline? _walkingPath; // walking route to avoid buildings and obstacles
   bool _isLocationFixed = false;
-  
+
   StreamSubscription<Position>? _positionStreamSubscription;
 
   @override
@@ -277,9 +325,9 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       if (route != null) {
         if (_destinationPoint != null && _userLocation != null) {
           final boardingPoint = _findNearestPoint(_userLocation!, route.coordinates);
-          
+
           final walkingPoints = await _getWalkingRoute(_userLocation!, boardingPoint);
-          
+
           setState(() {
             _walkingPath = Polyline(
               points: walkingPoints, //walking path coordinates
@@ -351,7 +399,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
           if(mounted) {
             _updateUserLocation(position);
           }
-    });
+        });
   }
 
   void _updateUserLocation(Position position, {bool isInitial = false}) {
@@ -459,7 +507,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       }
     });
   }
-
   double _calculateDistance(LatLng p1, LatLng p2) => Geolocator.distanceBetween(p1.latitude, p1.longitude, p2.latitude, p2.longitude);
   LatLng _findNearestPoint(LatLng p, List<LatLng> ps) { LatLng n=ps.first;double m=_calculateDistance(p, n);for(var pt in ps){double d=_calculateDistance(p, pt);if(d<m){m=d;n=pt;}}return n; }
   Marker _createUserMarker() => Marker(
@@ -586,7 +633,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
                ),
                const SizedBox(height: 10),
 
-               // changed the search bar
+               //changed the search bar
                Padding(
                  padding: const EdgeInsets.symmetric(horizontal: 20),
                  child: Column(
@@ -624,7 +671,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
              ],
            ),
 
-             // Locator floating above routes container
+             //locator button
              Positioned(
                bottom: 150,
                right: 20,
@@ -645,6 +692,41 @@ class _NavigationScreenState extends State<_NavigationScreen> {
                    tooltip: 'My Location',
                  ),
                ),
+             ),
+
+             //cancel route button
+             Obx(() => navController.selectedRoute.value != null
+               ? Positioned(
+                   bottom: 210,
+                   right: 20, 
+                   child: Container(
+                     width: 50,
+                     height: 50,
+                     decoration: BoxDecoration(
+                       borderRadius: BorderRadius.circular(15),
+                       color: const Color(0xFFFEFEFE),
+                       boxShadow: [
+                         BoxShadow(
+                           color: Colors.black.withOpacity(0.1),
+                           blurRadius: 4,
+                           offset: Offset(0, 2),
+                         ),
+                       ],
+                     ),
+                     child: IconButton(
+                       onPressed: () {
+                         navController.clearRoute();
+                       },
+                       icon: Icon(
+                         Icons.close,
+                         color: Colors.red,
+                         size: 25,
+                       ),
+                       tooltip: 'Clear Route',
+                     ),
+                   ),
+                 )
+               : SizedBox.shrink(), 
              ),
         ],
       ),

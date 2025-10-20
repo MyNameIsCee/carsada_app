@@ -120,14 +120,14 @@ class _AboutState extends State<About> {
                        ),
                      ),
                      const Text(
-                       "This helps individuals who don't know the right destination of their life.",
+                       "This helps individuals who don't know the right destination in Iloilo City.",
                        style: TextStyle(
                          fontSize: 16,
                          color: Color(0xFF353232),
                        ),
                      ),
                      const Text(
-                       'Carsada is easily accessable thru downloading in Playstore, App store and etc.',
+                       'Carsada is easily accessable through downloading in our website.',
                        style: TextStyle(
                          fontSize: 16,
                          color: Color(0xFF353232),

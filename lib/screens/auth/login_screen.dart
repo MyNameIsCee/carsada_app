@@ -88,20 +88,19 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
   }
+//added a method for the back icon
+AppBar appBar() {
+  return AppBar(
+    backgroundColor: Colors.transparent,
+    elevation: 0.0,
+    leading: Back_Icon(
+      onPressed: () {
+        Navigator.of(context).pop();     
+      },
+    ),
+  );
 
-  //added a method for the back icon
-  AppBar appBar() {
-    return AppBar(
-      backgroundColor: const Color(0xFFFEFEFE),
-      elevation: 0.0,
-      leading: Back_Icon(
-        onPressed: () {
-          Navigator.of(context).pop();     
-        },
-      ),
-    );
-  }
-
+}
   //UI
 
   @override
