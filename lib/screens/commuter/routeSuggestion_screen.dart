@@ -25,10 +25,10 @@ class RouteSuggestionScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F9),
       appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(255, 204, 0, 1),
+        backgroundColor: const Color.fromARGB(255, 246, 245, 240),
         title: const Text(
           'Suggested Routes',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontFamily:'Roboto'),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),

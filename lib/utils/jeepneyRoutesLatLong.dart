@@ -128,7 +128,7 @@ JeepneyRoute(
       LatLng(10.69675, 122.55661), LatLng(10.69669, 122.55603),
       LatLng(10.69656, 122.55488),
     ],
-    color: Colors.red,
+    color: const Color.fromARGB(255, 228, 54, 187),
   ),
 
  JeepneyRoute(
@@ -479,7 +479,7 @@ JeepneyRoute(
     LatLng(10.72795, 122.55725), LatLng(10.72839, 122.55686),
     LatLng(10.72853, 122.55666), LatLng(10.72752, 122.55558),
   ],
-  color: Colors.yellow,
+  color: const Color.fromARGB(255, 59, 206, 255),
 ),
 JeepneyRoute(
   name: 'TICUD LAPAZ TO CITY PROPER LOOP',
@@ -554,7 +554,7 @@ JeepneyRoute(
    LatLng(10.70156, 122.56923), LatLng(10.70176, 122.56884),
    LatLng(10.70189, 122.56846), LatLng(10.70213, 122.56823),
   ],
-  color: Colors.pink,
+  color: const Color.fromARGB(255, 30, 64, 233),
 ),
 ];
 
