@@ -922,7 +922,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
               children: [
                 TileLayer(
                   urlTemplate:
-                      'https::/{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.example.carsada_app',
                 ),
                 PolylineLayer(
