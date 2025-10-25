@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:carsada_app/components/back_icon.dart';
 import 'package:carsada_app/validator/validator.dart';
 import 'package:carsada_app/components/text_box.dart';
@@ -12,50 +13,37 @@ class changePassword extends StatefulWidget {
 }
 
 class _ChangePasswordState extends State<changePassword> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-   @override
+  @override
   void dispose() {
-    _usernameController.dispose();
-    _emailController.dispose();
+    _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Container usernameTextbox() {
+  Container currentPasswordTextbox() {
     return Container(
       padding: const EdgeInsets.only(left: 20, right: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text_Box(
-            hintText: 'Username',
-            controller: _usernameController,
-            keyboardType: TextInputType.text,
-            validator: usernameValidator,
-            autovalidateMode: AutovalidateMode.disabled,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Container emailTextbox() {
-    return Container(
-      padding: const EdgeInsets.only(left: 20, right: 20, top: 15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text_Box(
-            hintText: 'Email address',
-            controller: _emailController,
-            keyboardType: TextInputType.text,
-            validator: emailValidator,
+            hintText: 'Current Password',
+            controller: _currentPasswordController,
+            isPassword: true,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your current password';
+              }
+              return null;
+            },
             autovalidateMode: AutovalidateMode.disabled,
           ),
         ],
@@ -91,7 +79,12 @@ class _ChangePasswordState extends State<changePassword> {
             hintText: 'Confirm Password',
             controller: _confirmPasswordController,
             isPassword: true,
-            validator: passwordValidator,
+            validator: (value) {
+              if (value != _newPasswordController.text) {
+                return 'Passwords do not match';
+              }
+              return null;
+            },
             autovalidateMode: AutovalidateMode.disabled,
           ),
         ],
@@ -104,16 +97,54 @@ class _ChangePasswordState extends State<changePassword> {
       padding: const EdgeInsets.only(left: 20, right: 20),
       child: CustomButton(
         text: 'Confirm',
-        onPressed: () {
+        onPressed: () async {
           final form = _formKey.currentState;
-          if (form == null) return;
-          if (!form.validate()) return;
+          if (form == null || !form.validate()) return;
 
+          try {
+            // Get the current user
+            final user = FirebaseAuth.instance.currentUser;
+            if (user == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('No user is logged in.')),
+              );
+              return;
+            }
+
+            final credential = EmailAuthProvider.credential(
+              email: user.email!,
+              password: _currentPasswordController.text,
+            );
+
+            await user.reauthenticateWithCredential(credential);
+
+            await user.updatePassword(_newPasswordController.text);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Password changed successfully!')),
+            );
+
+            // Return true to indicate the password was changed
+            Navigator.of(context).pop(true);
+          } catch (e) {
+            // error handling
+            String errorMessage = 'Failed to change password.';
+            if (e is FirebaseAuthException) {
+              if (e.code == 'wrong-password') {
+                errorMessage = 'The current password is incorrect.';
+              } else if (e.code == 'requires-recent-login') {
+                errorMessage = 'Please log in again to change your password.';
+              }
+            }
+
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(errorMessage)));
+          }
         },
       ),
     );
   }
-      
 
   AppBar appBar(BuildContext context) {
     return AppBar(
@@ -142,6 +173,8 @@ class _ChangePasswordState extends State<changePassword> {
       backgroundColor: const Color(0xFFF7F7F9),
       appBar: appBar(context),
       body: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -155,8 +188,7 @@ class _ChangePasswordState extends State<changePassword> {
                 ),
               ),
               const SizedBox(height: 40),
-              usernameTextbox(),
-              emailTextbox(),
+              currentPasswordTextbox(),
               newPasswordTextbox(),
               confirmPasswordTextbox(),
               const SizedBox(height: 20),
@@ -164,6 +196,7 @@ class _ChangePasswordState extends State<changePassword> {
             ],
           ),
         ),
+      ),
     );
   }
 }

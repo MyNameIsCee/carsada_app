@@ -94,7 +94,7 @@ class _UserTabScreenState extends State<UserTabScreen> {
   }
 
   Future<void> _showLogoutConfirmation() async {
-      return showDialog(
+    return showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -103,40 +103,37 @@ class _UserTabScreenState extends State<UserTabScreen> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Container(
-            padding: const EdgeInsets.all(20), 
-            width: MediaQuery.of(context).size.width * 0.8,  
+            padding: const EdgeInsets.all(20),
+            width: MediaQuery.of(context).size.width * 0.8,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(15),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,  
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 5),
                 const Text(
                   'Log out of your account?',
                   textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF353232),
-                  ),
+                  style: TextStyle(fontSize: 16, color: Color(0xFF353232)),
                 ),
                 const SizedBox(height: 10),
-                  Row(
-                  mainAxisAlignment: MainAxisAlignment.end,  
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                      GestureDetector(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: const Text(
-                          'CANCEL',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF353232),
-                          ),
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: const Text(
+                        'CANCEL',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF353232),
                         ),
                       ),
-                    
+                    ),
+
                     const SizedBox(width: 5),
                     ElevatedButton(
                       onPressed: () async {
@@ -144,7 +141,7 @@ class _UserTabScreenState extends State<UserTabScreen> {
                         await _logout();
                       },
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),  
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         backgroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -153,10 +150,7 @@ class _UserTabScreenState extends State<UserTabScreen> {
                       ),
                       child: const Text(
                         'LOG OUT',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.red,
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.red),
                       ),
                     ),
                   ],
@@ -323,12 +317,18 @@ class _UserTabScreenState extends State<UserTabScreen> {
                       children: [
                         Text(
                           username,
-                          style: const TextStyle(fontSize: 20, color: Color(0xFF353232)),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Color(0xFF353232),
+                          ),
                         ),
                         const SizedBox(height: 5),
                         Text(
                           email,
-                          style: const TextStyle(fontSize: 14, color: Color(0xFF353232)),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF353232),
+                          ),
                         ),
                       ],
                     ),
@@ -349,13 +349,18 @@ class _UserTabScreenState extends State<UserTabScreen> {
                         MenuTile(
                           menu: menus[0],
                           showDivider: true,
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => EditProfile(),
                               ),
                             );
+
+                            // checks if the profile was updated and reloads user data
+                            if (result == true) {
+                              await _loadUserData();
+                            }
                           },
                         ),
                         MenuTile(
@@ -364,9 +369,7 @@ class _UserTabScreenState extends State<UserTabScreen> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => About(),
-                              ),
+                              MaterialPageRoute(builder: (context) => About()),
                             );
                           },
                         ),
@@ -376,9 +379,7 @@ class _UserTabScreenState extends State<UserTabScreen> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => Faqs(),
-                              ),
+                              MaterialPageRoute(builder: (context) => Faqs()),
                             );
                           },
                         ),
