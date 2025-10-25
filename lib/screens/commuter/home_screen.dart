@@ -25,7 +25,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> screens = const [
-    _NavigationScreen(),
+    const SizedBox.expand(
+      child: _NavigationScreen(),
+    ),
     SizedBox.shrink(), // This screen is never shown, so use a placeholder
     UserTabScreen(),
   ];
