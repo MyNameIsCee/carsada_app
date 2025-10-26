@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:carsada_app/components/text_box.dart';
 import 'package:carsada_app/components/button.dart';
 import 'package:carsada_app/screens/auth/authentication.dart';
-import 'package:carsada_app/components/back_icon.dart';
+import 'package:carsada_app/screens/auth/username_screen.dart';
+import 'package:carsada_app/screens/auth/forgot_password.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -88,25 +89,25 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
   }
-//added a method for the back icon
-AppBar appBar() {
-  return AppBar(
-    backgroundColor: Colors.transparent,
-    elevation: 0.0,
-    leading: Back_Icon(
-      onPressed: () {
-        Navigator.of(context).pop();     
-      },
-    ),
-  );
 
-}
+  //added a method for the back icon
+ /**  AppBar appBar() {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0.0,
+      scrolledUnderElevation: 0.0,
+      leading: Back_Icon(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      ),
+    );
+  }*/ //incase when needed back
   //UI
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar(),
       backgroundColor: const Color(0xFFFEFEFE),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -138,7 +139,7 @@ AppBar appBar() {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 10),
 
                 Text_Box(
                   hintText: 'Password',
@@ -163,7 +164,7 @@ AppBar appBar() {
                     ),
                   ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
 
                 CustomButton(
                   text: _isLoading ? 'Logging in...' : 'Login',
@@ -175,17 +176,64 @@ AppBar appBar() {
                 ),
                 const SizedBox(height: 30),
 
-                const Text(
+                /**  const Text(
                   'Forgotten password?',
                   style: TextStyle(
                     fontSize: 14,
                     color: Color(0xFF353232),
                     fontWeight: FontWeight.normal,
                   ),
+                ),  */
+
+                //Forgot Password Button
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return ForgotPasswordPage();
+                              },
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'Forgotten Password?',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF353232),
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
+        ),
+      ),
+      //create account button
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(bottom: 45, left: 20, right: 20),
+        child: CustomButton(
+          text: 'Create account',
+          onPressed: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const UsernameScreen()),
+            );
+          },
+          isOutlined: true,
+          backgroundColor: const Color(0xFFFFCC00),
+          textColor: const Color(0xFFFFCC00),
+          width: 390,
+          height: 50,
         ),
       ),
     );

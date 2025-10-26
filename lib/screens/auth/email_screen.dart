@@ -36,7 +36,7 @@ class _EmailScreenState extends State<EmailScreen> {
               children: [
             textInfo(),
             emailTextbox(),
-            const SizedBox(height: 20,),
+            const SizedBox(height: 10),
             customButton(),
           ],
         ),
@@ -52,12 +52,12 @@ class _EmailScreenState extends State<EmailScreen> {
           padding: const EdgeInsets.only(left: 20),
           child: Column(
             children: [
-              SizedBox(height: 40),
+              SizedBox(height: 5),
               Text(
                "What's your email address?",
                 style: TextStyle(
                   color: Color(0xFF353232),
-                  fontSize: 20,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),

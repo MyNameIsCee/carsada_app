@@ -35,7 +35,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
           children: [
             textInfo(),
             usernameTextbox(),
-            const SizedBox(height: 20,),
+            const SizedBox(height: 10),
             customButton(),
           ],
         ),
@@ -53,12 +53,12 @@ class _UsernameScreenState extends State<UsernameScreen> {
           padding: const EdgeInsets.only(left: 20),
           child: Column(
             children: [
-              SizedBox(height: 40),
+              SizedBox(height: 5),
               Text(
                 'Hello!',
                 style: TextStyle(
                   color: Color(0xFF353232),
-                  fontSize: 20,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -72,7 +72,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
             style: TextStyle(fontSize: 14),
           ),
         ),
-        SizedBox(height: 15,),
+        SizedBox(height: 15),
       ],
     );
   }

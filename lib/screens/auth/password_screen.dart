@@ -40,7 +40,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
           children: [
             textInfo(),
             passwordTextbox(),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             customButton(),
           ],
         ),
@@ -56,12 +56,12 @@ class _PasswordScreenState extends State<PasswordScreen> {
           padding: const EdgeInsets.only(left: 20),
           child: Column(
             children: [
-              SizedBox(height: 40),
+              SizedBox(height: 5),
               Text(
                 'Create a password',
                 style: TextStyle(
                   color: Color(0xFF353232),
-                  fontSize: 20,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
