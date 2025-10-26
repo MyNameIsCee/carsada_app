@@ -23,12 +23,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-<<<<<<< Updated upstream
-  final List<Widget> screens = const [
-    _NavigationScreen(),
-    _NavigationScreen(), 
-    UserTabScreen(),
-=======
   List<Widget> get screens => [
     _NavigationScreen(
       onFilteredRoutesChanged: _handleFilteredRoutesChanged, // here
@@ -40,15 +34,12 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     ),
     const UserTabScreen(),
->>>>>>> Stashed changes
   ];
 
   bool _isExpanded = false;
   List<RouteSuggestion> _filteredRoutes = []; // here 
   bool _isShowingFilteredRoutes = false; // here 
 
-<<<<<<< Updated upstream
-=======
   void _handleFilteredRoutesChanged(List<RouteSuggestion> routes, bool isShowing) { // here
     setState(() {
       _filteredRoutes = routes; // here
@@ -59,7 +50,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
->>>>>>> Stashed changes
   //bottom navigation...
   @override
   Widget build(BuildContext context) {
@@ -89,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (controller.selectedIndex.value == 0) 
+          if (controller.selectedIndex.value == 0)
             GestureDetector(
               behavior: HitTestBehavior.translucent,
               onTap: () {
@@ -97,8 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   _isExpanded = !_isExpanded;
                 });
               },
-              onPanStart: (details) {
-              },
+              onPanStart: (details) {},
               onPanUpdate: (details) {
                 if (details.delta.dy < -5) {
                   if (!_isExpanded) {
@@ -114,20 +103,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                 }
               },
-              onPanEnd: (details) {
-              },
+              onPanEnd: (details) {},
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
                 height: _isExpanded ? 655.0 : 50.0,
-<<<<<<< Updated upstream
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-=======
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 4,
                 ),
->>>>>>> Stashed changes
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(30),
@@ -135,88 +119,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   color: const Color(0xFFFEFEFE),
                 ),
-<<<<<<< Updated upstream
-                child: _isExpanded 
-                  ? Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Column(
-                            children: [
-                              Container(
-                                width: 50,
-                                height: 3,
-                                decoration: BoxDecoration(
-                                  color: const Color.fromARGB(255, 203, 201, 209),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'Routes',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Color(0xFF051D30),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            width: double.infinity,
-                            child: ListView.builder(
-                              itemCount: allJeepneyRoutes.length,
-                              itemBuilder: (context, index) {
-                                final route = allJeepneyRoutes[index];
-                                final NavigationController navController = Get.find<NavigationController>();
-
-                                return Container(
-                                  width: 390,
-                                  height: 85,
-                                  margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 3),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    color: Colors.transparent,
-                                  ),
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(20),
-                                      splashColor: Colors.yellow.withOpacity(0.3),
-                                      highlightColor: Colors.yellow.withOpacity(0.1),
-                                      onTap: () {
-                                        navController.pickRoute(route);
-                                        setState(() {
-                                          _isExpanded = false; 
-                                        });
-                                      },
-                                      child: Container(
-                                        width: double.infinity,
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.directions_bus,
-                                              color: const Color(0xFFFFCC00),
-                                              size: 30,
-                                            ),
-                                            const SizedBox(width: 16),
-                                            Expanded(
-                                              child: Text(
-                                                route.name,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 14,
-                                                  color: Color(0xFF051D30),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-=======
                 child: _isExpanded
                     ? Column(
                         children: [
@@ -296,7 +198,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                               });
                                             },
                                           ),
->>>>>>> Stashed changes
                                         ),
                                       ],
                                     )
@@ -362,42 +263,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                         );
                                       },
                                     ),
-<<<<<<< Updated upstream
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : Container(
-                      height: 50.0,
-                      padding: const EdgeInsets.symmetric( vertical: 4),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 50,
-                            height: 3,
-                            decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 203, 201, 209),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Routes',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFF051D30),
-                              ),
-                            ),
-                          ),
-                        ],
-=======
                             ),
                           ),
                         ],
@@ -429,9 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
->>>>>>> Stashed changes
                       ),
-                    ),
               ),
             ),
 
@@ -439,14 +302,10 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             decoration: const BoxDecoration(
               border: Border(
-<<<<<<< Updated upstream
-                top: BorderSide(color: Color.fromARGB(255, 189, 188, 188), width: 0.5),
-=======
                 top: BorderSide(
                   color: Color.fromARGB(255, 189, 188, 188),
                   width: 0.5,
                 ),
->>>>>>> Stashed changes
               ),
             ),
             child: NavigationBar(
@@ -454,50 +313,62 @@ class _HomeScreenState extends State<HomeScreen> {
               indicatorColor: Colors.transparent,
               height: 60,
               elevation: 0,
-              selectedIndex: _isExpanded ? 1 : controller.selectedIndex.value,
+              selectedIndex: _isExpanded ? 1 : (controller.selectedIndex.value == 1 ? 2 : controller.selectedIndex.value),
               onDestinationSelected: (index) {
                 if (index == 1) {
                   setState(() {
                     _isExpanded = true;
                   });
-                  controller.selectedIndex.value = 0; 
+                  controller.selectedIndex.value = 0;
                 } else if (index == 2) {
                   setState(() {
                     _isExpanded = false;
                   });
-                  controller.selectedIndex.value = index;
+                  controller.selectedIndex.value = 1;
                 } else if (index == 0) {
                   setState(() {
                     _isExpanded = false;
                   });
-                  controller.selectedIndex.value = index;
+                  controller.selectedIndex.value = 0;
                 }
               },
               destinations: const [
                 NavigationDestination(
                   icon: HugeIcon(
-                    icon: HugeIcons.strokeRoundedNavigation03, size: 24, color: Color(0xFF353232),
+                    icon: HugeIcons.strokeRoundedNavigation03,
+                    size: 24,
+                    color: Color(0xFF353232),
                   ),
                   selectedIcon: HugeIcon(
-                    icon: HugeIcons.strokeRoundedNavigation03, size: 24, color: Color(0xFFFFCC00),
+                    icon: HugeIcons.strokeRoundedNavigation03,
+                    size: 24,
+                    color: Color(0xFFFFCC00),
                   ),
                   label: 'Navigation',
                 ),
                 NavigationDestination(
                   icon: HugeIcon(
-                    icon: HugeIcons.strokeRoundedRoute02, size: 24, color: Color(0xFF353232),
+                    icon: HugeIcons.strokeRoundedRoute02,
+                    size: 24,
+                    color: Color(0xFF353232),
                   ),
                   selectedIcon: HugeIcon(
-                    icon: HugeIcons.strokeRoundedRoute02, size: 24, color: Color(0xFFFFCC00),
+                    icon: HugeIcons.strokeRoundedRoute02,
+                    size: 24,
+                    color: Color(0xFFFFCC00),
                   ),
                   label: 'Routes',
                 ),
                 NavigationDestination(
                   icon: HugeIcon(
-                    icon: HugeIcons.strokeRoundedUser, size: 24, color: Color(0xFF353232),
+                    icon: HugeIcons.strokeRoundedUser,
+                    size: 24,
+                    color: Color(0xFF353232),
                   ),
                   selectedIcon: HugeIcon(
-                    icon: HugeIcons.strokeRoundedUser, size: 24, color: Color(0xFFFFCC00),
+                    icon: HugeIcons.strokeRoundedUser,
+                    size: 24,
+                    color: Color(0xFFFFCC00),
                   ),
                   label: 'Profile',
                 ),
@@ -508,11 +379,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-<<<<<<< Updated upstream
-}   //..up to here
-=======
 } //..up to here
->>>>>>> Stashed changes
 
 class _NavigationScreen extends StatefulWidget {
   final Function(List<RouteSuggestion>, bool) onFilteredRoutesChanged; // here
@@ -531,7 +398,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
   final NavigationController navController = Get.find<NavigationController>();
   final MapController _mapController = MapController();
   final TextEditingController _destinationController = TextEditingController();
-  final double _maxWalkDistance = 250.0;
+  final double _maxWalkDistance = 300.0;
   final List<JeepneyRoute> _routes = allJeepneyRoutes;
 
   LatLng? _userLocation;
@@ -556,11 +423,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       if (!mounted) return;
       if (route != null) {
         if (_destinationPoint != null && _userLocation != null) {
-<<<<<<< Updated upstream
-          final boardingPoint = _findNearestPoint(_userLocation!, route.coordinates);
-
-          final walkingPoints = await _getWalkingRoute(_userLocation!, boardingPoint);
-=======
           final boardingPoint = _findNearestPoint(
             _userLocation!,
             route.coordinates,
@@ -570,7 +432,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
             _userLocation!,
             boardingPoint,
           );
->>>>>>> Stashed changes
 
           setState(() {
             _walkingPath = Polyline(
@@ -578,13 +439,9 @@ class _NavigationScreenState extends State<_NavigationScreen> {
               strokeWidth: 5,
               color: Colors.teal,
             );
-<<<<<<< Updated upstream
-            _markers.removeWhere((m) => m.key == const ValueKey('board_marker'));
-=======
             _markers.removeWhere(
               (m) => m.key == const ValueKey('board_marker'),
             );
->>>>>>> Stashed changes
             _markers.add(_createBoardingMarker(boardingPoint));
           });
           _updateMapView();
@@ -621,13 +478,9 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       await _getUserLocation();
       _startLocationUpdates();
     } else {
-<<<<<<< Updated upstream
-      if (mounted) setState(() => _statusMessage = "Location permission is required.");
-=======
       if (mounted) {
         setState(() => _statusMessage = "Location permission is required.");
       }
->>>>>>> Stashed changes
     }
   }
 
@@ -639,13 +492,9 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       );
       _updateUserLocation(position, isInitial: true);
     } catch (e) {
-<<<<<<< Updated upstream
-      if (mounted) setState(() => _statusMessage = 'Please enable location services.');
-=======
       if (mounted) {
         setState(() => _statusMessage = 'Please enable location services.');
       }
->>>>>>> Stashed changes
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -656,14 +505,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       accuracy: LocationAccuracy.bestForNavigation,
       distanceFilter: 10,
     );
-<<<<<<< Updated upstream
-    _positionStreamSubscription = Geolocator.getPositionStream(locationSettings: locationSettings)
-        .listen((Position position) {
-          if(mounted) {
-            _updateUserLocation(position);
-          }
-        });
-=======
     _positionStreamSubscription =
         Geolocator.getPositionStream(locationSettings: locationSettings).listen(
           (Position position) {
@@ -672,7 +513,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
             }
           },
         );
->>>>>>> Stashed changes
   }
 
   void _updateUserLocation(Position position, {bool isInitial = false}) {
@@ -693,13 +533,9 @@ class _NavigationScreenState extends State<_NavigationScreen> {
     final query = _destinationController.text.trim();
     if (query.isEmpty) return;
     if (_userLocation == null) {
-<<<<<<< Updated upstream
-      if (mounted) setState(() => _statusMessage = "Please enable location first.");
-=======
       if (mounted) {
         setState(() => _statusMessage = "Please enable location first.");
       }
->>>>>>> Stashed changes
       return;
     }
     if (mounted) {
@@ -712,27 +548,19 @@ class _NavigationScreenState extends State<_NavigationScreen> {
     }
     try {
       final response = await http.get(
-<<<<<<< Updated upstream
-        Uri.parse('https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&format=json&limit=1'),
-=======
         Uri.parse(
           'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&format=json&limit=1',
         ),
->>>>>>> Stashed changes
         headers: {'User-Agent': 'Carsada'},
       );
-      if(!mounted) return;
+      if (!mounted) return;
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
         if (data.isNotEmpty) {
-<<<<<<< Updated upstream
-          final destination = LatLng(double.parse(data[0]['lat']), double.parse(data[0]['lon']));
-=======
           final destination = LatLng(
             double.parse(data[0]['lat']),
             double.parse(data[0]['lon']),
           );
->>>>>>> Stashed changes
           setState(() {
             _destinationPoint = destination;
             _markers.add(_createDestinationMarker());
@@ -743,13 +571,9 @@ class _NavigationScreenState extends State<_NavigationScreen> {
         }
       }
     } catch (e) {
-<<<<<<< Updated upstream
-      if (mounted) setState(() => _statusMessage = 'Search error. Please try again.');
-=======
       if (mounted) {
         setState(() => _statusMessage = 'Search error. Please try again.');
       }
->>>>>>> Stashed changes
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -757,39 +581,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
 
   Future<void> _calculateValidRoutesAndNavigate(String query) async {
     if (_userLocation == null || _destinationPoint == null) return;
-<<<<<<< Updated upstream
-    final validRoutes = _routes.where((route) {
-      final boardingPoint = _findNearestPoint(_userLocation!, route.coordinates);
-      final userDistance = _calculateDistance(_userLocation!, boardingPoint);
-      final nearestToDest = _findNearestPoint(_destinationPoint!, route.coordinates);
-      final destDistance = _calculateDistance(_destinationPoint!, nearestToDest);
-      return userDistance <= _maxWalkDistance && destDistance <= _maxWalkDistance;
-    }).toList();
-    if (!mounted) return;
-    if (validRoutes.isNotEmpty) {
-      final selectedRoute = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RouteSuggestionScreen(
-            destinationQuery: query,
-            validRoutes: validRoutes,
-            userLocation: _userLocation!,
-            calculateDistance: _calculateDistance,
-            findNearestPoint: _findNearestPoint,
-          ),
-        ),
-      );
-      if (!mounted) return;
-      if (selectedRoute != null) {
-        navController.selectedRoute.value = selectedRoute;
-      } else {
-        setState(() {
-            _statusMessage = 'No route selected. Please try another destination.';
-        });
-      }
-    } else {
-      setState(() => _statusMessage = 'No routes found within ${_maxWalkDistance.toInt()}m of you and your destination.');
-=======
     final validRoutes = _routes.where((route) { // here 
       final boardingPoint = _findNearestPoint(
         _userLocation!,
@@ -827,7 +618,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
         () => _statusMessage =
             'No routes found within ${_maxWalkDistance.toInt()}m of you and your destination.',
       );
->>>>>>> Stashed changes
     }
     setState(() => _isLoading = false);
   }
@@ -837,83 +627,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       if (!mounted) return;
       if (fitToRoute != null) {
         final bounds = LatLngBounds.fromPoints(fitToRoute.coordinates);
-<<<<<<< Updated upstream
-        _mapController.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)));
-      } else if (navController.selectedRoute.value != null && _userLocation != null && _destinationPoint != null) {
-        final boardingPoint = _findNearestPoint(_userLocation!, navController.selectedRoute.value!.coordinates);
-        final bounds = LatLngBounds.fromPoints([_userLocation!, boardingPoint, _destinationPoint!]);
-        _mapController.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(80)));
-      }
-    });
-  }
-  double _calculateDistance(LatLng p1, LatLng p2) => Geolocator.distanceBetween(p1.latitude, p1.longitude, p2.latitude, p2.longitude);
-  LatLng _findNearestPoint(LatLng p, List<LatLng> ps) { LatLng n=ps.first;double m=_calculateDistance(p, n);for(var pt in ps){double d=_calculateDistance(p, pt);if(d<m){m=d;n=pt;}}return n; }
-  Marker _createUserMarker() => Marker(
-        key: const ValueKey('user_marker'),
-        point: _userLocation!,
-        width: 40,
-        height: 40,
-        child: Container(
-          alignment: Alignment.center,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                ),
-              ),
-              Container(
-                width: 16,
-                height: 16,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.blue,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-  Marker _createDestinationMarker() => Marker(key: const ValueKey('dest_marker'), point: _destinationPoint!, width: 80, height: 80, child: const Icon(Icons.location_on, color: Colors.red, size: 40));
-  Marker _createBoardingMarker(LatLng p) => Marker(key: const ValueKey('board_marker'), point: p, width: 80, height: 80, child: const Icon(Icons.directions_bus, color: Colors.green, size: 35));
-
-  Future<List<LatLng>> _getWalkingRoute(LatLng start, LatLng end) async {
-    try {
-      final response = await http.get(
-        Uri.parse('https://router.project-osrm.org/route/v1/walking/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&geometries=geojson'),
-        headers: {'User-Agent': 'Carsada'},
-      );
-      
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['routes'] != null && data['routes'].isNotEmpty) {
-          final coordinates = data['routes'][0]['geometry']['coordinates'] as List;
-          return coordinates.map<LatLng>((coord) => LatLng(coord[1], coord[0])).toList();
-        }
-      }
-    } catch (e) {
-      print('Walking route error: $e');
-    }
-    
-    return [start, end];
-  }
-
-  void _goToMyLocation() {
-    if (_userLocation != null) {
-      _mapController.move(_userLocation!, 15.0);
-      setState(() {
-        _isLocationFixed = true;
-      });
-    }
-  }
-
-  //UI
-  
-=======
         _mapController.fitCamera(
           CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)),
         );
@@ -1037,7 +750,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
 
   //UI
 
->>>>>>> Stashed changes
   //changed the UI to more simpler and cleaner, reference is at our figma
   @override
   Widget build(BuildContext context) {
@@ -1062,15 +774,12 @@ class _NavigationScreenState extends State<_NavigationScreen> {
               ),
               children: [
                 TileLayer(
-                  urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  urlTemplate:
+                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.example.carsada_app',
                 ),
                 PolylineLayer(
-<<<<<<< Updated upstream
-                  polylines: <Polyline>[ 
-=======
                   polylines: <Polyline>[
->>>>>>> Stashed changes
                     if (navController.selectedRoute.value != null)
                       navController.selectedRoute.value!.toPolyline(),
                     if (_walkingPath != null) _walkingPath!,
@@ -1080,124 +789,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
               ],
             ),
           ),
-<<<<<<< Updated upstream
-           Column(
-             children: [
-               Container(
-                 decoration: const BoxDecoration(
-                   color: Color.fromARGB(255, 254, 254, 254),
-                   border: Border(
-                     bottom: BorderSide(color: Color.fromARGB(255, 189, 188, 188), width: 0.5),
-                   ),
-                 ),
-                 height: 85,
-                 width: double.infinity,
-                 child: Align(
-                   alignment: Alignment.bottomLeft,
-                   child: Padding(
-                     padding: const EdgeInsets.only(left: 20, bottom: 5),
-                     child: const Text('carsada', style: TextStyle(fontFamily: 'Roboto', fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFFFFCC00))),
-                   ),
-                 ),
-               ),
-               const SizedBox(height: 10),
-
-               //changed the search bar
-               Padding(
-                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                 child: Column(
-                   children: [
-                     Container(
-                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                       height: 50,
-                       decoration: BoxDecoration(
-                         color: Colors.white,
-                         borderRadius: BorderRadius.circular(30),
-                         boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3))],
-                       ),
-                       alignment: Alignment.centerLeft,
-                       child: TextField(
-                         controller: _destinationController,
-                         decoration: const InputDecoration(
-                           hintText: 'Enter your destination',
-                           border: InputBorder.none,
-                           hintStyle: TextStyle(color: Colors.black54, fontSize: 16),
-                           icon: Icon(Icons.search, color: Colors.black54),
-                         ),
-                         style: const TextStyle(fontSize: 16),
-                         onSubmitted: (_) => _findDestination(),
-                       ),
-                     ),
-                     const SizedBox(height: 8),
-                     Text(
-                       _statusMessage,
-                       style: TextStyle(color: _isLoading ? Colors.grey : Color(0xFF353232), backgroundColor: Colors.white.withOpacity(0.7)),
-                       textAlign: TextAlign.center,
-                     ),
-                   ],
-                 ),
-               ),
-             ],
-           ),
-
-             //locator button
-             Positioned(
-               bottom: 150,
-               right: 20,
-               child: Container(
-                 width: 50,
-                 height: 50,
-                 decoration: BoxDecoration(
-                   borderRadius: BorderRadius.circular(15),
-                   color: const Color(0xFFFEFEFE),
-                 ),
-                 child: IconButton(
-                   onPressed: _goToMyLocation,
-                   icon: Icon(
-                     _isLocationFixed ? Icons.my_location : Icons.location_searching,
-                     color: _isLocationFixed ? Colors.blue : Colors.grey,
-                     size: 25,
-                   ),
-                   tooltip: 'My Location',
-                 ),
-               ),
-             ),
-
-             //cancel route button
-             Obx(() => navController.selectedRoute.value != null
-               ? Positioned(
-                   bottom: 210,
-                   right: 20, 
-                   child: Container(
-                     width: 50,
-                     height: 50,
-                     decoration: BoxDecoration(
-                       borderRadius: BorderRadius.circular(15),
-                       color: const Color(0xFFFEFEFE),
-                       boxShadow: [
-                         BoxShadow(
-                           color: Colors.black.withOpacity(0.1),
-                           blurRadius: 4,
-                           offset: Offset(0, 2),
-                         ),
-                       ],
-                     ),
-                     child: IconButton(
-                       onPressed: () {
-                         navController.clearRoute();
-                       },
-                       icon: Icon(
-                         Icons.close,
-                         color: Colors.red,
-                         size: 25,
-                       ),
-                       tooltip: 'Clear Route',
-                     ),
-                   ),
-                 )
-               : SizedBox.shrink(), 
-             ),
-=======
           Column(
             children: [
               Container(
@@ -1346,7 +937,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
                   )
                 : SizedBox.shrink(),
           ),   
->>>>>>> Stashed changes
         ],
       ),
     );
