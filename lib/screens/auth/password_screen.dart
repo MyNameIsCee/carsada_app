@@ -138,21 +138,27 @@ class _PasswordScreenState extends State<PasswordScreen> {
   }
 
   void _signUp() async {
-    String password = _passwordController.text.trim();
-    try {
-      User? user = await _auth.signUpWithEmailAndPassword(
-        widget.email,
-        password,
-        widget.username,
+  String password = _passwordController.text.trim();
+  try {
+    User? user = await _auth.signUpWithEmailAndPassword(
+      widget.email,
+      password,
+      widget.username,
+    );
+
+    if (user != null) {
+      if (!mounted) return;
+      print("Signup successful");
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
       );
-      if (user != null) {
-        if (!mounted) return;
-        print("Signup successful");
-      } else {
-        print("Authentication error");
-      }
-    } catch (e) {
-      print("Sign-up error: $e");
+    } else {
+      print("Authentication error");
     }
+  } catch (e) {
+    print("Sign-up error: $e");
   }
+}
+
 }
