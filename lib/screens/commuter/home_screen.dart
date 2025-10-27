@@ -10,10 +10,13 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+import 'dart:math';
 import 'package:carsada_app/utils/jeepneyRoutes.dart';
 import 'package:carsada_app/utils/jeepneyRoutesLatLong.dart';
 import 'package:carsada_app/controllers/navigation_controller.dart';
 import 'package:carsada_app/widgets/route_suggestion_widget.dart';
+
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -419,51 +422,89 @@ class _NavigationScreenState extends State<_NavigationScreen> {
   bool _isLoading = false;
   String _statusMessage = 'Initializing...';
   final List<Marker> _markers = [];
-  Polyline? _walkingPath; // walking route to avoid buildings and obstacles
   bool _isLocationFixed = false;
+  Polyline? _walkingPath; // User to boarding point
+  Polyline? _segmentedJeepneyPath; // Boarding point to alighting point
 
   StreamSubscription<Position>? _positionStreamSubscription;
 
-  @override
+    // --- Location Suggestion State ---
+  List<Map<String, dynamic>> _suggestions = [];
+  Timer? _debounce;
+  bool _isSelectingSuggestion =
+      false; // Flag to prevent search on suggestion tap
+
+@override
   void initState() {
     super.initState();
     _initLocationService();
-    _destinationController.addListener(() {
-      if (mounted) setState(() {});
-    });
+    _destinationController.addListener(_onSearchChanged);
 
+// segmentation Logic
     ever(navController.selectedRoute, (JeepneyRoute? route) async {
       if (!mounted) return;
       if (route != null) {
         if (_destinationPoint != null && _userLocation != null) {
-          final boardingPoint = _findNearestPoint(
-            _userLocation!,
-            route.coordinates,
-          );
+          final boardingPoint =
+              _findNearestPoint(_userLocation!, route.coordinates);
+          final alightingPoint =
+              _findNearestPoint(_destinationPoint!, route.coordinates);
 
-          final walkingPoints = await _getWalkingRoute(
-            _userLocation!,
-            boardingPoint,
-          );
+          final walkingPoints =
+              await _getWalkingRoute(_userLocation!, boardingPoint);
+
+          List<LatLng> segmentedRouteCoords = [];
+          final int boardingIndex =
+              _findNearestPointIndex(boardingPoint, route.coordinates);
+          final int alightingIndex =
+              _findNearestPointIndex(alightingPoint, route.coordinates);
+
+          if (route.coordinates.length < 10) {
+            segmentedRouteCoords = route.coordinates;
+          } else {
+            if (boardingIndex != -1 && alightingIndex != -1) {
+              int startIndex = min(boardingIndex, alightingIndex);
+              int endIndex = max(boardingIndex, alightingIndex);
+              segmentedRouteCoords =
+                  route.coordinates.sublist(startIndex, endIndex + 1);
+            } else {
+              segmentedRouteCoords = route.coordinates;
+            }
+          }
+
+          _suggestions = [];
 
           setState(() {
+            // Set the walking path
             _walkingPath = Polyline(
-              points: walkingPoints, //walking path coordinates
+              points: walkingPoints,
               strokeWidth: 5,
-              color: Colors.teal,
+              color: Colors.teal, // Walking path color
             );
-            _markers.removeWhere(
-              (m) => m.key == const ValueKey('board_marker'),
+
+            // Set the segmented jeepney path
+            _segmentedJeepneyPath = Polyline(
+              points: segmentedRouteCoords,
+              strokeWidth: 5,
+              color: route.color, // Use the route's color
             );
+
+            // Add boarding marker
+            _markers.removeWhere((m) => m.key == const ValueKey('board_marker'));
             _markers.add(_createBoardingMarker(boardingPoint));
           });
-          _updateMapView();
+          _updateMapView(); // Fit map to the full journey
         } else {
           setState(() {
             _markers.removeWhere((m) => m.key != const ValueKey('user_marker'));
             _walkingPath = null;
+            _segmentedJeepneyPath = null; // Ensure no segment is drawn
             _destinationPoint = null;
+            // --- FIX 1b: Clear text without triggering listener ---
+            _isSelectingSuggestion = true;
             _destinationController.clear();
+            _suggestions = []; // Explicitly clear suggestions
+            // --- END FIX 1b ---
           });
           _updateMapView(fitToRoute: route);
         }
@@ -471,8 +512,13 @@ class _NavigationScreenState extends State<_NavigationScreen> {
         setState(() {
           _markers.removeWhere((m) => m.key != const ValueKey('user_marker'));
           _walkingPath = null;
+          _segmentedJeepneyPath = null; // Clear segment
           _destinationPoint = null;
+          // --- FIX 1b: Clear text without triggering listener ---
+          _isSelectingSuggestion = true;
           _destinationController.clear();
+          _suggestions = []; // Explicitly clear suggestions
+          // --- END FIX 1b ---
         });
       }
     });
@@ -482,7 +528,114 @@ class _NavigationScreenState extends State<_NavigationScreen> {
   void dispose() {
     _destinationController.dispose();
     _positionStreamSubscription?.cancel();
+    _debounce?.cancel();
     super.dispose();
+  }
+
+  void _onSearchChanged() {
+    // Check the flag here
+    if (_isSelectingSuggestion) {
+      _isSelectingSuggestion = false; // Reset the flag
+      return; // Do not trigger a search
+    }
+
+    if (mounted) setState(() {});
+
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      final query = _destinationController.text.trim();
+      if (query.isNotEmpty) {
+        _fetchSuggestions(query);
+      } else {
+        if (mounted) setState(() => _suggestions = []);
+      }
+    });
+  }
+
+  Future<void> _fetchSuggestions(String query) async {
+    if (query.isEmpty) {
+      if (mounted) setState(() => _suggestions = []);
+      return;
+    }
+
+    final url = Uri.parse(
+        'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&format=json&limit=5&countrycodes=ph');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'User-Agent': 'Carsada'},
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as List;
+        setState(() {
+          _suggestions = List<Map<String, dynamic>>.from(data);
+        });
+      } else {
+        setState(() => _suggestions = []);
+      }
+    } catch (e) {
+      print('Suggestion fetch error: $e');
+      if (mounted) setState(() => _suggestions = []);
+    }
+  }
+
+  Future<void> _onSuggestionTapped(Map<String, dynamic> suggestion) async {
+    if (!mounted || _userLocation == null) return;
+
+    final displayName = suggestion['display_name'] ?? '';
+    final lat = double.tryParse(suggestion['lat'] ?? '');
+    final lon = double.tryParse(suggestion['lon'] ?? '');
+
+    if (lat == null || lon == null) return; // Invalid data
+
+    // --- Get new destination first ---
+    final destination = LatLng(lat, lon);
+
+    // --- FIX: Set the flag before changing text ---
+    _isSelectingSuggestion = true;
+    FocusScope.of(context).unfocus();
+    _destinationController.text = displayName;
+
+    setState(() {
+      _suggestions = []; // This clears the list immediately
+      _isLoading = true;
+      _statusMessage = 'Finding best route...'; // Reset status message
+      // DON'T clear route yet
+    });
+
+    // --- NEW CHECK: Is this the same destination? ---
+    if (destination == _destinationPoint &&
+        navController.selectedRoute.value != null) {
+      if (mounted) setState(() => _isLoading = false);
+      _updateMapView(); // Re-center map
+      return; // It's the same destination, do nothing
+    }
+    // --- END NEW CHECK ---
+
+    // It's a new destination, proceed as normal
+    try {
+      // NOW we clear the old route
+      navController.clearRoute();
+      _markers.removeWhere((m) => m.key != const ValueKey('user_marker'));
+
+      setState(() {
+        _destinationPoint = destination;
+        _markers.add(_createDestinationMarker());
+      });
+
+      await _calculateValidRoutesAndNavigate(displayName);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _statusMessage = 'Search error. Please try again.';
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _initLocationService() async {
@@ -491,9 +644,8 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       await _getUserLocation();
       _startLocationUpdates();
     } else {
-      if (mounted) {
+      if (mounted)
         setState(() => _statusMessage = "Location permission is required.");
-      }
     }
   }
 
@@ -505,9 +657,8 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       );
       _updateUserLocation(position, isInitial: true);
     } catch (e) {
-      if (mounted) {
+      if (mounted)
         setState(() => _statusMessage = 'Please enable location services.');
-      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -518,14 +669,13 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       accuracy: LocationAccuracy.bestForNavigation,
       distanceFilter: 10,
     );
-    _positionStreamSubscription =
-        Geolocator.getPositionStream(locationSettings: locationSettings).listen(
-          (Position position) {
-            if (mounted) {
-              _updateUserLocation(position);
-            }
-          },
-        );
+    _positionStreamSubscription = Geolocator.getPositionStream(
+            locationSettings: locationSettings)
+        .listen((Position position) {
+      if (mounted) {
+        _updateUserLocation(position);
+      }
+    });
   }
 
   void _updateUserLocation(Position position, {bool isInitial = false}) {
@@ -546,24 +696,22 @@ class _NavigationScreenState extends State<_NavigationScreen> {
     final query = _destinationController.text.trim();
     if (query.isEmpty) return;
     if (_userLocation == null) {
-      if (mounted) {
+      if (mounted)
         setState(() => _statusMessage = "Please enable location first.");
-      }
       return;
     }
-    if (mounted) {
-      setState(() {
-        _isLoading = true;
-        navController.clearRoute();
-        _markers.removeWhere((m) => m.key != const ValueKey('user_marker'));
-        _walkingPath = null;
-      });
-    }
+
+    setState(() {
+      _suggestions = [];
+      _isLoading = true;
+      _statusMessage = 'Finding best route...'; // Reset status message
+      // DON'T clear the route here anymore
+    });
+
     try {
       final response = await http.get(
         Uri.parse(
-          'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&format=json&limit=1',
-        ),
+            'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&format=json&limit=1'),
         headers: {'User-Agent': 'Carsada'},
       );
       if (!mounted) return;
@@ -571,103 +719,143 @@ class _NavigationScreenState extends State<_NavigationScreen> {
         final data = json.decode(response.body) as List;
         if (data.isNotEmpty) {
           final destination = LatLng(
-            double.parse(data[0]['lat']),
-            double.parse(data[0]['lon']),
-          );
+              double.parse(data[0]['lat']), double.parse(data[0]['lon']));
+
+          // --- NEW CHECK: Is this the same destination? ---
+          if (destination == _destinationPoint &&
+              navController.selectedRoute.value != null) {
+            if (mounted) setState(() => _isLoading = false);
+            _updateMapView(); // Re-center map
+            return; // It's the same destination, do nothing
+          }
+          // --- END NEW CHECK ---
+
+          // It's a new destination, so NOW we clear the old state
+          navController.clearRoute();
+          _markers.removeWhere((m) => m.key != const ValueKey('user_marker'));
+
           setState(() {
             _destinationPoint = destination;
             _markers.add(_createDestinationMarker());
           });
           await _calculateValidRoutesAndNavigate(query);
         } else {
-          setState(() => _statusMessage = 'Destination not found');
+          setState(() {
+            _statusMessage = 'Destination not found';
+            _isLoading = false; // Set loading false on error
+          });
         }
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => _statusMessage = 'Search error. Please try again.');
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted)
+        setState(() {
+          _statusMessage = 'Search error. Please try again.';
+          _isLoading = false; // Set loading false on error
+        });
     }
   }
 
   Future<void> _calculateValidRoutesAndNavigate(String query) async {
     if (_userLocation == null || _destinationPoint == null) return;
-    final validRoutes = _routes.where((route) { 
-      final boardingPoint = _findNearestPoint(
-        _userLocation!,
-        route.coordinates,
-      );
+    final validRoutes = _routes.where((route) {
+      final boardingPoint =
+          _findNearestPoint(_userLocation!, route.coordinates);
       final userDistance = _calculateDistance(_userLocation!, boardingPoint);
-      final nearestToDest = _findNearestPoint(
-        _destinationPoint!,
-        route.coordinates,
-      );
-      final destDistance = _calculateDistance(
-        _destinationPoint!,
-        nearestToDest,
-      );
-      return userDistance <= _maxWalkDistance && 
-          destDistance <= _maxWalkDistance; 
+      final nearestToDest =
+          _findNearestPoint(_destinationPoint!, route.coordinates);
+      final destDistance =
+          _calculateDistance(_destinationPoint!, nearestToDest);
+      return userDistance <= _maxWalkDistance &&
+          destDistance <= _maxWalkDistance;
     }).toList();
+
     if (!mounted) return;
+
+    // --- FIX 2: Handle 1, 1+, or 0 routes ---
     if (validRoutes.isNotEmpty) {
-      final routeSuggestions = validRoutes.map((route) { 
-        final boardingPoint = _findNearestPoint(_userLocation!, route.coordinates);
-        final distance = _calculateDistance(_userLocation!, boardingPoint);
-        return RouteSuggestion(
-          route: route,
-          distanceToBoarding: distance,
-        );
-      }).toList();
+      // Create route suggestions with segmented route information
+      final routeSuggestions = <RouteSuggestion>[];
       
-      widget.onFilteredRoutesChanged(routeSuggestions, true); 
+      for (final route in validRoutes) {
+        final boardingPoint = _findNearestPoint(_userLocation!, route.coordinates);
+        final alightingPoint = _findNearestPoint(_destinationPoint!, route.coordinates);
+        final boardingIndex = _findNearestPointIndex(boardingPoint, route.coordinates);
+        final alightingIndex = _findNearestPointIndex(alightingPoint, route.coordinates);
+        
+        // Calculate segmented route using the SAME logic as in ever callback
+        List<LatLng> segmentedCoords = [];
+        if (boardingIndex != -1 && alightingIndex != -1) {
+          // Use min/max to ensure consistent segmentation everywhere
+          int startIndex = min(boardingIndex, alightingIndex);
+          int endIndex = max(boardingIndex, alightingIndex);
+          segmentedCoords = route.coordinates.sublist(startIndex, endIndex + 1);
+        } else {
+          segmentedCoords = route.coordinates;
+        }
+        
+        // Create new route with segmented coordinates
+        final segmentedRoute = JeepneyRoute(
+          name: route.name,
+          coordinates: segmentedCoords,
+          color: route.color,
+        );
+        
+        final distance = _calculateDistance(_userLocation!, boardingPoint);
+        routeSuggestions.add(RouteSuggestion(
+          route: segmentedRoute,
+          distanceToBoarding: distance,
+        ));
+      }
+      
+      widget.onFilteredRoutesChanged(routeSuggestions, true);
       setState(() {
-        _statusMessage = 'Found ${validRoutes.length} route(s) for "$query"'; 
+        _statusMessage = 'Found ${validRoutes.length} route(s) for "$query"';
       });
     } else {
-      setState(
-        () => _statusMessage =
-            'No routes found within ${_maxWalkDistance.toInt()}m of you and your destination.',
-      );
+      // No routes found
+      setState(() => _statusMessage =
+          'No routes found within ${_maxWalkDistance.toInt()}m of you and your destination.');
     }
+    // --- END FIX 2 ---
+
     setState(() => _isLoading = false);
   }
 
   void _updateMapView({JeepneyRoute? fitToRoute}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+
       if (fitToRoute != null) {
+        // Fit to the entire route (picked from list)
         final bounds = LatLngBounds.fromPoints(fitToRoute.coordinates);
         _mapController.fitCamera(
-          CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)),
-        );
+            CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)));
       } else if (navController.selectedRoute.value != null &&
           _userLocation != null &&
           _destinationPoint != null) {
+        // Fit to the suggested journey (walk + ride)
         final boardingPoint = _findNearestPoint(
-          _userLocation!,
-          navController.selectedRoute.value!.coordinates,
-        );
+            _userLocation!, navController.selectedRoute.value!.coordinates);
+
+        // This now correctly includes the jeepney route in the bounds
         final bounds = LatLngBounds.fromPoints([
           _userLocation!,
           boardingPoint,
           _destinationPoint!,
+          ...navController.selectedRoute.value!.coordinates // The fix
         ]);
         _mapController.fitCamera(
-          CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(80)),
-        );
+            CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(80)));
       }
     });
   }
 
-  double _calculateDistance(LatLng p1, LatLng p2) => Geolocator.distanceBetween(
-    p1.latitude,
-    p1.longitude,
-    p2.latitude,
-    p2.longitude,
-  );
+  // --- Helper Functions ---
+
+  double _calculateDistance(LatLng p1, LatLng p2) =>
+      Geolocator.distanceBetween(
+          p1.latitude, p1.longitude, p2.latitude, p2.longitude);
+
   LatLng _findNearestPoint(LatLng p, List<LatLng> ps) {
     LatLng n = ps.first;
     double m = _calculateDistance(p, n);
@@ -679,6 +867,54 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       }
     }
     return n;
+  }
+
+  int _findNearestPointIndex(LatLng point, List<LatLng> points) {
+    if (points.isEmpty) return -1;
+    int minIndex = 0;
+    double minDistance = _calculateDistance(point, points.first);
+
+    for (int i = 1; i < points.length; i++) {
+      double distance = _calculateDistance(point, points[i]);
+      if (distance < minDistance) {
+        minDistance = distance;
+        minIndex = i;
+      }
+    }
+    return minIndex;
+  }
+
+  Future<List<LatLng>> _getWalkingRoute(LatLng start, LatLng end) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://router.project-osrm.org/route/v1/walking/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&geometries=geojson'),
+        headers: {'User-Agent': 'Carsada'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['routes'] != null && data['routes'].isNotEmpty) {
+          final coordinates =
+              data['routes'][0]['geometry']['coordinates'] as List;
+          return coordinates
+              .map<LatLng>((coord) => LatLng(coord[1], coord[0]))
+              .toList();
+        }
+      }
+    } catch (e) {
+      print('Walking route error: $e');
+    }
+    return [start, end]; // Fallback to a straight line
+  }
+
+  void _goToMyLocation() {
+    if (_userLocation != null) {
+      _mapController.move(_userLocation!, 15.0);
+      setState(() {
+        _isLocationFixed = true;
+      });
+    }
   }
 
   Marker _createUserMarker() => Marker(
@@ -726,40 +962,6 @@ class _NavigationScreenState extends State<_NavigationScreen> {
     child: const Icon(Icons.directions_bus, color: Colors.green, size: 35),
   );
 
-  Future<List<LatLng>> _getWalkingRoute(LatLng start, LatLng end) async {
-    try {
-      final response = await http.get(
-        Uri.parse(
-          'https://router.project-osrm.org/route/v1/walking/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&geometries=geojson',
-        ),
-        headers: {'User-Agent': 'Carsada'},
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['routes'] != null && data['routes'].isNotEmpty) {
-          final coordinates =
-              data['routes'][0]['geometry']['coordinates'] as List;
-          return coordinates
-              .map<LatLng>((coord) => LatLng(coord[1], coord[0]))
-              .toList();
-        }
-      }
-    } catch (e) {
-      print('Walking route error: $e');
-    }
-
-    return [start, end];
-  }
-
-  void _goToMyLocation() {
-    if (_userLocation != null) {
-      _mapController.move(_userLocation!, 15.0);
-      setState(() {
-        _isLocationFixed = true;
-      });
-    }
-  }
 
   //UI
 
@@ -793,7 +995,9 @@ class _NavigationScreenState extends State<_NavigationScreen> {
                 ),
                 PolylineLayer(
                   polylines: <Polyline>[
-                    if (navController.selectedRoute.value != null)
+                    if (_segmentedJeepneyPath != null)
+                      _segmentedJeepneyPath!
+                    else if (navController.selectedRoute.value != null)
                       navController.selectedRoute.value!.toPolyline(),
                     if (_walkingPath != null) _walkingPath!,
                   ],
@@ -869,6 +1073,52 @@ class _NavigationScreenState extends State<_NavigationScreen> {
                         onSubmitted: (_) => _findDestination(),
                       ),
                     ),
+                     // suggestions 
+                     if (_suggestions.isNotEmpty)
+                       Container(
+                         margin: const EdgeInsets.only(top: 8),
+                         constraints: const BoxConstraints(
+                           maxHeight: 200, 
+                         ),
+                         decoration: BoxDecoration(
+                           color: Colors.white,
+                           borderRadius: BorderRadius.circular(10),
+                           boxShadow: const [
+                             BoxShadow(
+                               color: Colors.black12,
+                               blurRadius: 8,
+                               offset: Offset(0, 3),
+                             ),
+                           ],
+                         ),
+                         child: ListView.builder(
+                           shrinkWrap: true,
+                           physics: const BouncingScrollPhysics(),
+                           padding: const EdgeInsets.all(10),
+                           itemCount: _suggestions.length,
+                           itemBuilder: (context, index) {
+                             final suggestion = _suggestions[index];
+                             return Container(
+                               margin: const EdgeInsets.only(bottom: 5), 
+                               child: ListTile(
+                                 contentPadding: EdgeInsets.zero, 
+                                 leading: const Icon(
+                                   Icons.location_on_outlined, 
+                                   color: Colors.grey,
+                                   size: 30,
+                                 ),
+                                 title: Text(
+                                   suggestion['display_name'] ?? '',
+                                   style: const TextStyle(fontSize: 14),
+                                   maxLines: 2,
+                                   overflow: TextOverflow.ellipsis,
+                                 ),
+                                 onTap: () => _onSuggestionTapped(suggestion),
+                               ),
+                             );
+                           },
+                         ),
+                       ),
                     const SizedBox(height: 8),
                     Text(
                       _statusMessage,

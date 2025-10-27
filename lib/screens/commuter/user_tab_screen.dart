@@ -45,7 +45,7 @@ class _UserTabScreenState extends State<UserTabScreen> {
           .get();
 
       if (userDoc.exists && mounted) {
-        final userData = userDoc.data() as Map<String, dynamic>?;
+        final userData = userDoc.data();
 
         setState(() {
           username =

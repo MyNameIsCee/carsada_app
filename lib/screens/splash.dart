@@ -3,7 +3,6 @@ import 'package:lottie/lottie.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:carsada_app/screens/landing_page.dart';
 import 'package:carsada_app/screens/commuter/home_screen.dart';
-import 'package:carsada_app/screens/auth/login_screen.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
