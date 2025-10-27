@@ -147,10 +147,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
       );
       if (user != null) {
         if (!mounted) return;
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-          (route) => false,
-        );
+        print("Signup successful");
       } else {
         print("Authentication error");
       }

@@ -41,9 +41,21 @@ class _LoginScreenState extends State<LoginScreen> {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
-    if (email.isEmpty || password.isEmpty) {
+    if (email.isEmpty && password.isEmpty) {
       setState(() {
-        _errorMessage = "Please fill in all fields";
+        _errorMessage = "Please enter your email address and password";
+        _isLoading = false;
+      });
+      return;
+    } else if (email.isEmpty) {
+      setState(() {
+        _errorMessage = "Please enter your email address";
+        _isLoading = false;
+      });
+      return;
+    } else if (password.isEmpty) {
+      setState(() {
+        _errorMessage = "Please enter your password";
         _isLoading = false;
       });
       return;
@@ -62,12 +74,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (user != null) {
         print("Login successful");
-        Navigator.of(context).pushReplacement(
+        Navigator.pushReplacement(
+          context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } else {
         setState(() {
-          _errorMessage = "Invalid email or password";
+          _errorMessage = "Invalid account, please try again";
         });
       }
     } catch (e) {
@@ -146,23 +159,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _passwordController,
                   isPassword: true,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
 
-                if (_errorMessage.isNotEmpty)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(bottom: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red.withOpacity(0.3)),
-                    ),
+              if (_errorMessage.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Container(
+                    alignment: Alignment.centerLeft,
                     child: Text(
                       _errorMessage,
-                      style: TextStyle(color: Colors.red[700], fontSize: 14),
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
+                ),
+
 
                 const SizedBox(height: 5),
 

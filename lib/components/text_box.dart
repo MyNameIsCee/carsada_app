@@ -27,11 +27,24 @@ class Text_Box extends StatefulWidget {
 
 class _TextBoxState extends State<Text_Box> {
   bool _obscureText = false;
+  bool _isFocused = false;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _obscureText = widget.isPassword;
+    _focusNode.addListener(() {
+      setState(() {
+        _isFocused = _focusNode.hasFocus;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -42,17 +55,27 @@ class _TextBoxState extends State<Text_Box> {
   Widget _buildContainer({required Widget child, required bool hasError}) {
     return Container(
       width: 390,
+      height: 65,  
       decoration: _buildDecoration(hasError: hasError),
       child: child,
     );
   }
 
   BoxDecoration _buildDecoration({required bool hasError}) {
+    Color borderColor;
+    if (hasError) {
+      borderColor = Colors.red;
+    } else if (_isFocused) {
+      borderColor = const Color.fromARGB(255, 27, 27, 27); 
+    } else {
+      borderColor = Colors.grey; 
+    }
+
     return BoxDecoration(
       color: const Color(0xFFFEFEFE),
       borderRadius: BorderRadius.circular(15),
       border: Border.all(
-        color: hasError ? Colors.red : const Color(0xFF353232),
+        color: borderColor,
         width: 1,
       ),
     );
@@ -65,29 +88,57 @@ class _TextBoxState extends State<Text_Box> {
       validator: widget.validator,
       builder: (state) {
         final bool hasError = state.hasError;
+        final bool hasText = widget.controller?.text.isNotEmpty ?? false;
+        final bool shouldShowLabel = _isFocused || hasText;
+        
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildContainer(
-              hasError: hasError,
-              child: TextField(
-                controller: widget.controller,
-                obscureText: _obscureText,
-                keyboardType: widget.isPassword
-                    ? TextInputType.visiblePassword
-                    : widget.keyboardType,
-                onChanged: (value) {
-                  state.didChange(value);
-                  if (widget.onChanged != null) {
-                    widget.onChanged!(value);
-                  }
-                },
-                style: _getTextStyle(),
-                decoration: _buildInputDecoration().copyWith(
-                  suffixIcon: widget.isPassword ? _buildEyeIcon() : null,
-                  hintText: widget.hintText,
+            Stack(
+              children: [
+                _buildContainer(
+                  hasError: hasError,
+                  child: TextField(
+                    controller: widget.controller,
+                    focusNode: _focusNode,
+                    obscureText: _obscureText,
+                    keyboardType: widget.isPassword
+                        ? TextInputType.visiblePassword
+                        : widget.keyboardType,
+                    onChanged: (value) {
+                      state.didChange(value);
+                      if (widget.onChanged != null) {
+                        widget.onChanged!(value);
+                      }
+                    },
+                    style: _getTextStyle(),
+                    decoration: _buildInputDecoration().copyWith(
+                      suffixIcon: widget.isPassword ? _buildEyeIcon() : null,
+                      hintText: null, 
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 25, // to find the center change here
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                if (widget.hintText != null)
+                  Positioned(
+                    left: 20,
+                    top: shouldShowLabel ? 8 : 25, // it is for the heading label
+                    child: AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 200),
+                      style: TextStyle(
+                        fontSize: shouldShowLabel ? 12 : 14,
+                        color: shouldShowLabel 
+                            ? const Color(0xFF36454F) 
+                            : const Color(0xFF999999), 
+                        fontWeight: shouldShowLabel ? FontWeight.w500 : FontWeight.normal,
+                      ),
+                      child: Text(widget.hintText!),
+                    ),
+                  ),
+              ],
             ),
             SizedBox(height: 4),
             if (hasError)
@@ -130,7 +181,6 @@ class _TextBoxState extends State<Text_Box> {
     return const InputDecoration(
       contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       border: InputBorder.none,
-      hintStyle: TextStyle(fontSize: 14, color: Color(0xFF999999)),
     );
   }
 }

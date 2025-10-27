@@ -93,6 +93,7 @@ flutter:
     - lib/assets/landing_page/
     - .env
     - lib/assets/images/Logo.png
+    - lib/assets/loading/GPS Navigation.json
 
   # To add assets to your application, add an assets section, like this:
   # assets:

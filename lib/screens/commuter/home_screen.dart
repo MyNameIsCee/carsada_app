@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:carsada_app/screens/commuter/user_tab_screen.dart';
@@ -12,7 +13,6 @@ import 'dart:async';
 import 'package:carsada_app/utils/jeepneyRoutes.dart';
 import 'package:carsada_app/utils/jeepneyRoutesLatLong.dart';
 import 'package:carsada_app/controllers/navigation_controller.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:carsada_app/widgets/route_suggestion_widget.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,11 +25,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Widget> get screens => [
     _NavigationScreen(
-      onFilteredRoutesChanged: _handleFilteredRoutesChanged, // here
+      onFilteredRoutesChanged: _handleFilteredRoutesChanged, 
       onClearFilteredRoutes: () {
         setState(() {
-          _isShowingFilteredRoutes = false; // here 
-          _filteredRoutes.clear(); // here 
+          _isShowingFilteredRoutes = false; 
+          _filteredRoutes.clear(); 
         });
       },
     ),
@@ -37,15 +37,15 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   bool _isExpanded = false;
-  List<RouteSuggestion> _filteredRoutes = []; // here 
-  bool _isShowingFilteredRoutes = false; // here 
+  List<RouteSuggestion> _filteredRoutes = []; 
+  bool _isShowingFilteredRoutes = false; 
 
-  void _handleFilteredRoutesChanged(List<RouteSuggestion> routes, bool isShowing) { // here
+  void _handleFilteredRoutesChanged(List<RouteSuggestion> routes, bool isShowing) { 
     setState(() {
-      _filteredRoutes = routes; // here
-      _isShowingFilteredRoutes = isShowing; // here 
+      _filteredRoutes = routes; 
+      _isShowingFilteredRoutes = isShowing; 
       if (isShowing) {
-        _isExpanded = true; // here
+        _isExpanded = true; 
       }
     });
   }
@@ -54,22 +54,35 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(NavigationController());
-    return Scaffold(
-      backgroundColor: const Color(0xFFFEFEFE),
-      bottomNavigationBar: Container(
-        color: Colors.transparent,
-        child: Obx(() => bottomNavi(controller)),
-      ),
-      body: Container(
-        color: Colors.transparent,
-        child: Obx(
-          () => IndexedStack(
-            index: controller.selectedIndex.value,
-            children: screens,
+    return WillPopScope(
+      onWillPop: () async {
+        if (_isExpanded) {
+          setState(() {
+            _isExpanded = false;
+          });
+          return false; 
+        } else {
+          SystemNavigator.pop();
+          return false; 
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFFEFEFE),
+        bottomNavigationBar: Container(
+          color: Colors.transparent,
+          child: Obx(() => bottomNavi(controller)),
+        ),
+        body: Container(
+          color: Colors.transparent,
+          child: Obx(
+            () => IndexedStack(
+              index: controller.selectedIndex.value,
+              children: screens,
+            ),
           ),
         ),
+        extendBody: true,
       ),
-      extendBody: true,
     );
   }
 
@@ -144,18 +157,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      _isShowingFilteredRoutes ? 'Suggested Routes' : 'Routes', // here
+                                      _isShowingFilteredRoutes ? 'Suggested Routes' : 'Routes',
                                       style: TextStyle(
                                         fontSize: 16,
                                         color: Color(0xFF051D30),
                                       ),
                                     ),
-                                    if (_isShowingFilteredRoutes) // here 
+                                    if (_isShowingFilteredRoutes) 
                                       TextButton.icon(
                                         onPressed: () {
                                           setState(() {
-                                            _isShowingFilteredRoutes = false; // here 
-                                            _filteredRoutes.clear(); // here 
+                                            _isShowingFilteredRoutes = false; 
+                                            _filteredRoutes.clear(); 
                                           });
                                         },
                                         label: const Text(
@@ -180,13 +193,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           Expanded(
                             child: SizedBox(
                               width: double.infinity,
-                              child: _isShowingFilteredRoutes // here 
+                              child: _isShowingFilteredRoutes 
                                   ? Column(
                                       children: [
                                         // filtered routes list
                                         Expanded(
                                           child: RouteSuggestionWidget(
-                                            routeSuggestions: _filteredRoutes, // here 
+                                            routeSuggestions: _filteredRoutes, 
                                             showDistance: true,
                                             isCompact: true,
                                             onRouteSelected: (route) {
@@ -382,12 +395,12 @@ class _HomeScreenState extends State<HomeScreen> {
 } //..up to here
 
 class _NavigationScreen extends StatefulWidget {
-  final Function(List<RouteSuggestion>, bool) onFilteredRoutesChanged; // here
-  final VoidCallback? onClearFilteredRoutes; // here 
+  final Function(List<RouteSuggestion>, bool) onFilteredRoutesChanged;
+  final VoidCallback? onClearFilteredRoutes;
   
   const _NavigationScreen({
-    required this.onFilteredRoutesChanged, // here 
-    this.onClearFilteredRoutes, // here
+    required this.onFilteredRoutesChanged, 
+    this.onClearFilteredRoutes, 
   });
 
   @override
@@ -581,7 +594,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
 
   Future<void> _calculateValidRoutesAndNavigate(String query) async {
     if (_userLocation == null || _destinationPoint == null) return;
-    final validRoutes = _routes.where((route) { // here 
+    final validRoutes = _routes.where((route) { 
       final boardingPoint = _findNearestPoint(
         _userLocation!,
         route.coordinates,
@@ -595,12 +608,12 @@ class _NavigationScreenState extends State<_NavigationScreen> {
         _destinationPoint!,
         nearestToDest,
       );
-      return userDistance <= _maxWalkDistance && // here
-          destDistance <= _maxWalkDistance; // here 
+      return userDistance <= _maxWalkDistance && 
+          destDistance <= _maxWalkDistance; 
     }).toList();
     if (!mounted) return;
     if (validRoutes.isNotEmpty) {
-      final routeSuggestions = validRoutes.map((route) { // here
+      final routeSuggestions = validRoutes.map((route) { 
         final boardingPoint = _findNearestPoint(_userLocation!, route.coordinates);
         final distance = _calculateDistance(_userLocation!, boardingPoint);
         return RouteSuggestion(
@@ -609,9 +622,9 @@ class _NavigationScreenState extends State<_NavigationScreen> {
         );
       }).toList();
       
-      widget.onFilteredRoutesChanged(routeSuggestions, true); // here
+      widget.onFilteredRoutesChanged(routeSuggestions, true); 
       setState(() {
-        _statusMessage = 'Found ${validRoutes.length} route(s) for "$query"'; // here
+        _statusMessage = 'Found ${validRoutes.length} route(s) for "$query"'; 
       });
     } else {
       setState(

@@ -1,6 +1,9 @@
-import 'package:carsada_app/screens/landing_page.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:carsada_app/screens/landing_page.dart';
+import 'package:carsada_app/screens/commuter/home_screen.dart';
+import 'package:carsada_app/screens/auth/login_screen.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -13,15 +16,27 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
-    _navigateToLogin();
+    _initializeApp();
   }
 
-  Future<void> _navigateToLogin() async {
-    await Future.delayed(const Duration(milliseconds: 3300), () {});
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LandingPage()),
-    );
+  Future<void> _initializeApp() async {
+    await Future.delayed(const Duration(seconds: 3));
+    
+    final user = FirebaseAuth.instance.currentUser;
+    
+    if (mounted) {
+      if (user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
+    }
   }
 
   @override
@@ -35,8 +50,8 @@ class _SplashState extends State<Splash> {
           children: [
             Expanded(
               child: Center(
-                child: Lottie.network(
-                  'https://lottie.host/d484db38-ba89-4fa1-abe9-4dec178f2fcc/HClo8cU9x0.json',
+                child: Lottie.asset(
+                  'lib/assets/loading/GPS Navigation.json',
                   fit: BoxFit.contain,
                   repeat: true,
                   animate: true,
