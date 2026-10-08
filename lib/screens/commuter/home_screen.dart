@@ -428,11 +428,10 @@ class _NavigationScreenState extends State<_NavigationScreen> {
 
   StreamSubscription<Position>? _positionStreamSubscription;
 
-    // --- Location Suggestion State ---
   List<Map<String, dynamic>> _suggestions = [];
   Timer? _debounce;
   bool _isSelectingSuggestion =
-      false; // Flag to prevent search on suggestion tap
+      false; 
 
 @override
   void initState() {
@@ -500,11 +499,11 @@ class _NavigationScreenState extends State<_NavigationScreen> {
             _walkingPath = null;
             _segmentedJeepneyPath = null; // Ensure no segment is drawn
             _destinationPoint = null;
-            // --- FIX 1b: Clear text without triggering listener ---
+           
             _isSelectingSuggestion = true;
             _destinationController.clear();
-            _suggestions = []; // Explicitly clear suggestions
-            // --- END FIX 1b ---
+            _suggestions = []; 
+        
           });
           _updateMapView(fitToRoute: route);
         }
@@ -514,11 +513,11 @@ class _NavigationScreenState extends State<_NavigationScreen> {
           _walkingPath = null;
           _segmentedJeepneyPath = null; // Clear segment
           _destinationPoint = null;
-          // --- FIX 1b: Clear text without triggering listener ---
+         
           _isSelectingSuggestion = true;
           _destinationController.clear();
-          _suggestions = []; // Explicitly clear suggestions
-          // --- END FIX 1b ---
+          _suggestions = []; 
+        
         });
       }
     });
@@ -536,7 +535,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
     // Check the flag here
     if (_isSelectingSuggestion) {
       _isSelectingSuggestion = false; // Reset the flag
-      return; // Do not trigger a search
+      return; 
     }
 
     if (mounted) setState(() {});
@@ -592,33 +591,31 @@ class _NavigationScreenState extends State<_NavigationScreen> {
 
     if (lat == null || lon == null) return; // Invalid data
 
-    // --- Get new destination first ---
+   
     final destination = LatLng(lat, lon);
 
-    // --- FIX: Set the flag before changing text ---
+
     _isSelectingSuggestion = true;
     FocusScope.of(context).unfocus();
     _destinationController.text = displayName;
 
     setState(() {
-      _suggestions = []; // This clears the list immediately
+      _suggestions = []; 
       _isLoading = true;
-      _statusMessage = 'Finding best route...'; // Reset status message
-      // DON'T clear route yet
+      _statusMessage = 'Finding best route...'; 
+ 
     });
 
-    // --- NEW CHECK: Is this the same destination? ---
+
     if (destination == _destinationPoint &&
         navController.selectedRoute.value != null) {
       if (mounted) setState(() => _isLoading = false);
-      _updateMapView(); // Re-center map
-      return; // It's the same destination, do nothing
+      _updateMapView(); 
+      return; 
     }
-    // --- END NEW CHECK ---
 
-    // It's a new destination, proceed as normal
     try {
-      // NOW we clear the old route
+      // clear the old route
       navController.clearRoute();
       _markers.removeWhere((m) => m.key != const ValueKey('user_marker'));
 
@@ -644,8 +641,9 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       await _getUserLocation();
       _startLocationUpdates();
     } else {
-      if (mounted)
+      if (mounted) {
         setState(() => _statusMessage = "Location permission is required.");
+      }
     }
   }
 
@@ -657,8 +655,9 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       );
       _updateUserLocation(position, isInitial: true);
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() => _statusMessage = 'Please enable location services.');
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -696,16 +695,17 @@ class _NavigationScreenState extends State<_NavigationScreen> {
     final query = _destinationController.text.trim();
     if (query.isEmpty) return;
     if (_userLocation == null) {
-      if (mounted)
+      if (mounted) {
         setState(() => _statusMessage = "Please enable location first.");
+      }
       return;
     }
 
     setState(() {
       _suggestions = [];
       _isLoading = true;
-      _statusMessage = 'Finding best route...'; // Reset status message
-      // DON'T clear the route here anymore
+      _statusMessage = 'Finding best route...'; 
+
     });
 
     try {
@@ -721,16 +721,14 @@ class _NavigationScreenState extends State<_NavigationScreen> {
           final destination = LatLng(
               double.parse(data[0]['lat']), double.parse(data[0]['lon']));
 
-          // --- NEW CHECK: Is this the same destination? ---
+       
           if (destination == _destinationPoint &&
               navController.selectedRoute.value != null) {
             if (mounted) setState(() => _isLoading = false);
             _updateMapView(); // Re-center map
-            return; // It's the same destination, do nothing
+            return; 
           }
-          // --- END NEW CHECK ---
 
-          // It's a new destination, so NOW we clear the old state
           navController.clearRoute();
           _markers.removeWhere((m) => m.key != const ValueKey('user_marker'));
 
@@ -747,11 +745,12 @@ class _NavigationScreenState extends State<_NavigationScreen> {
         }
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _statusMessage = 'Search error. Please try again.';
           _isLoading = false; // Set loading false on error
         });
+      }
     }
   }
 
@@ -771,9 +770,9 @@ class _NavigationScreenState extends State<_NavigationScreen> {
 
     if (!mounted) return;
 
-    // --- FIX 2: Handle 1, 1+, or 0 routes ---
+
     if (validRoutes.isNotEmpty) {
-      // Create route suggestions with segmented route information
+
       final routeSuggestions = <RouteSuggestion>[];
       
       for (final route in validRoutes) {
@@ -782,10 +781,10 @@ class _NavigationScreenState extends State<_NavigationScreen> {
         final boardingIndex = _findNearestPointIndex(boardingPoint, route.coordinates);
         final alightingIndex = _findNearestPointIndex(alightingPoint, route.coordinates);
         
-        // Calculate segmented route using the SAME logic as in ever callback
+        // Calculate segmented route 
         List<LatLng> segmentedCoords = [];
         if (boardingIndex != -1 && alightingIndex != -1) {
-          // Use min/max to ensure consistent segmentation everywhere
+      
           int startIndex = min(boardingIndex, alightingIndex);
           int endIndex = max(boardingIndex, alightingIndex);
           segmentedCoords = route.coordinates.sublist(startIndex, endIndex + 1);
@@ -826,18 +825,18 @@ class _NavigationScreenState extends State<_NavigationScreen> {
       if (!mounted) return;
 
       if (fitToRoute != null) {
-        // Fit to the entire route (picked from list)
+     
         final bounds = LatLngBounds.fromPoints(fitToRoute.coordinates);
         _mapController.fitCamera(
             CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)));
       } else if (navController.selectedRoute.value != null &&
           _userLocation != null &&
           _destinationPoint != null) {
-        // Fit to the suggested journey (walk + ride)
+      
         final boardingPoint = _findNearestPoint(
             _userLocation!, navController.selectedRoute.value!.coordinates);
 
-        // This now correctly includes the jeepney route in the bounds
+    
         final bounds = LatLngBounds.fromPoints([
           _userLocation!,
           boardingPoint,
@@ -965,7 +964,7 @@ class _NavigationScreenState extends State<_NavigationScreen> {
 
   //UI
 
-  //changed the UI to more simpler and cleaner, reference is at our figma
+
   @override
   Widget build(BuildContext context) {
     return Obx(
